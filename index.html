@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonsuz Kitap - Yazma Atölyesi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="grain-overlay"></div>
+    <div class="save-notification" id="save-notification">Kaydedildi...</div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Bölümler</h2>
+                <button id="add-chapter-btn">+</button>
+            </div>
+            <ul id="chapters-list"></ul>
+
+            <div class="stats-panel">
+                <div class="stat-row">
+                    <span class="stat-label">Kelime</span>
+                    <span id="stat-words" class="stat-value">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Karakter</span>
+                    <span id="stat-chars" class="stat-value">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Sayfa</span>
+                    <span id="stat-pages" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div style="padding: 20px 30px;">
+                <button id="sync-folder-btn"
+                    style="width: 100%; padding: 12px; border-radius: 8px; background: #d4af37; color: #000; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Poppins', sans-serif;">
+                    <span style="font-size: 1.2em;">📁</span> Bilgisayara Eşitle
+                </button>
+                <div id="sync-status"
+                    style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center;">Klasör
+                    Seçilmedi</div>
+            </div>
+        </aside>
+
+        <!-- Main Window -->
+        <main class="main-content">
+            <div class="top-bar">
+                <button id="prev-btn" class="nav-btn">Önceki</button>
+                <div id="page-label">Sayfa 1 - 2</div>
+                <button id="next-btn" class="nav-btn">Sonraki</button>
+            </div>
+
+            <div class="book-container">
+                <div class="book" id="book-el">
+                    <div class="spine-border"></div>
+
+                    <!-- Left Page -->
+                    <div class="page page-left">
+                        <div id="left-text" class="writing-area" contenteditable="true"></div>
+                        <div class="page-footer" id="left-num">1</div>
+                    </div>
+
+                    <!-- Right Page -->
+                    <div class="page page-right">
+                        <div id="right-text" class="writing-area" contenteditable="true"></div>
+                        <div class="page-footer" id="right-num">2</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden Ghost Page for Calculation -->
+    <div id="ghost-page"
+        style="position: absolute; left: -9999px; width: 450px; padding: 0; font-size: 14px; line-height: 1.6; font-family: 'Poppins', sans-serif; text-align: left; hyphens: auto; -webkit-hyphens: auto; visibility: hidden; white-space: pre-wrap; overflow-wrap: break-word;">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
