@@ -12,15 +12,21 @@
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo">Sonsuz<span>Kitap</span></a>
+            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
             <div class="nav-links" id="nav-actions">
-                <a href="dashboard.html" class="nav-item" id="nav-library-link">📚 <span>Kütüphanem</span></a>
-                <div class="user-profile-nav">
-                    <button class="profile-trigger" id="profile-trigger">👤</button>
-                    <div class="nav-dropdown" id="profile-dropdown">
-                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
-                        <a href="profile.html" class="dropdown-link">👤 Profilim</a>
-                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                <!-- Guest View -->
+                <a href="#" class="nav-item" id="login-open">Giriş Yap / Kayıt Ol</a>
+                
+                <!-- Logged-in View -->
+                <div id="logged-in-menu" style="display: none; align-items: center; gap: 25px;">
+                    <a href="dashboard.html" class="nav-item" id="nav-library-link">📚 <span>Kütüphanem</span></a>
+                    <div class="user-profile-nav">
+                        <button class="profile-trigger" id="profile-trigger">👤</button>
+                        <div class="nav-dropdown" id="profile-dropdown">
+                            <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
+                            <a href="profile.html" class="dropdown-link">👤 Profilim</a>
+                            <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                        </div>
                     </div>
                 </div>
             </div>

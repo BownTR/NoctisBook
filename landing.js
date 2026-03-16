@@ -152,16 +152,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileTrigger = document.getElementById('profile-trigger');
     const profileDropdown = document.getElementById('profile-dropdown');
     const userInfoName = document.getElementById('user-info-name');
-    const libraryLink = document.getElementById('nav-library-link');
+    const loginOpenBtn = document.getElementById('login-open');
+    const loggedInMenu = document.getElementById('logged-in-menu');
 
     auth.onAuthStateChanged(user => {
+        const heroBtns = document.querySelectorAll('.btn-hero');
         if (user) {
+            if (loginOpenBtn) loginOpenBtn.style.display = 'none';
+            if (loggedInMenu) loggedInMenu.style.display = 'flex';
             if (userInfoName) userInfoName.textContent = user.displayName || 'Yazar';
             
-            // Logged in: Normal library link behavior
-            if (libraryLink) {
-                libraryLink.onclick = null; // Default anchor behavior
-            }
+            heroBtns.forEach(btn => {
+                if (btn.getAttribute('href') === 'editor.html') btn.onclick = null;
+            });
 
             if (profileTrigger) {
                 profileTrigger.onclick = (e) => {
@@ -171,16 +174,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             }
         } else {
-            if (userInfoName) userInfoName.textContent = 'Misafir Yazar';
-            
-            // Guest: Click library or profile triggers login modal
-            const triggerAuth = (e) => {
-                e.preventDefault();
-                openModal();
-            };
+            if (loginOpenBtn) {
+                loginOpenBtn.style.display = 'block';
+                loginOpenBtn.onclick = (e) => {
+                    e.preventDefault();
+                    openModal();
+                };
+            }
+            if (loggedInMenu) loggedInMenu.style.display = 'none';
 
-            if (libraryLink) libraryLink.onclick = triggerAuth;
-            if (profileTrigger) profileTrigger.onclick = triggerAuth;
+            heroBtns.forEach(btn => {
+                if (btn.getAttribute('href') === 'editor.html') {
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        openModal();
+                    };
+                }
+            });
         }
     });
 
