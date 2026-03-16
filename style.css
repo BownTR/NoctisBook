@@ -14,12 +14,13 @@
     --accent-color: #d4af37;
     --sidebar-bg: rgba(0, 0, 0, 0.4);
 
-    /* Fixed Page Dimensions */
+    /* Updated Responsive Page Dimensions */
+    --book-width: 1000px;
     --book-height: 700px;
     --page-padding-v: 60px;
     --page-padding-h: 50px;
-    --writing-height: 580px;
-    /* 700 - (60 * 2) */
+    --writing-height: calc(var(--book-height) - (var(--page-padding-v) * 2));
+    --sidebar-width: 280px;
 }
 
 body {
@@ -47,7 +48,8 @@ body {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    z-index: 100;
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-header {
@@ -201,13 +203,14 @@ body {
 
 .book {
     display: flex;
-    width: 1000px;
+    width: var(--book-width);
     height: var(--book-height);
     background: var(--paper-edge);
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
     border-radius: 4px 15px 15px 4px;
     position: relative;
     transform: rotateX(2deg);
+    transition: width 0.3s, height 0.3s;
 }
 
 .page {
@@ -302,20 +305,119 @@ body {
 }
 
 /* Animation */
-.book.flip-anim {
-    animation: bookFlip 0.6s ease-in-out;
+/* Menu Toggle Button */
+.mobile-only-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 300;
+    background: var(--accent-color);
+    color: #000;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    align-items: center;
+    justify-content: center;
 }
 
-@keyframes bookFlip {
-    0% {
-        transform: rotateX(2deg) scale(1);
+/* Mobile Responsiveness */
+@media (max-width: 1100px) {
+    :root {
+        --book-width: 90vw;
+        --book-height: 80vh;
+        --page-padding-h: 30px;
+        --page-padding-v: 40px;
     }
 
-    50% {
-        transform: rotateX(4deg) scale(0.98);
-    }
-
-    100% {
-        transform: rotateX(2deg) scale(1);
+    .book {
+        transform: none;
     }
 }
+
+@media (max-width: 800px) {
+    .mobile-only-btn {
+        display: flex;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: var(--sidebar-width);
+        transform: translateX(-100%);
+        box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-header {
+        padding-left: 75px; /* Added padding to avoid burger menu overlap */
+    }
+
+    /* Sidebar Backdrop */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 150;
+        backdrop-filter: blur(3px);
+    }
+
+    .sidebar.open + .sidebar-overlay {
+        display: block;
+    }
+
+    .book {
+        width: 100%;
+        height: 75vh;
+        flex-direction: column;
+    }
+
+    .page-right {
+        display: none !important; /* Hide right page on mobile */
+    }
+
+    .page-left {
+        border-radius: 15px;
+        border-right: none;
+        background: var(--paper-color);
+    }
+
+    .spine-border {
+        display: none;
+    }
+
+    .top-bar {
+        margin-top: 50px;
+        flex-wrap: wrap;
+    }
+
+    #page-label {
+        order: 3;
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+/* Landscape Mobile Fix */
+@media (max-height: 500px) {
+    :root {
+        --book-height: 90vh;
+    }
+    .top-bar {
+        margin-bottom: 5px;
+    }
+}

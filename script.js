@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ghostPage = document.getElementById('ghost-page');
     const saveLabel = document.getElementById('save-notification');
     const bookEl = document.getElementById('book-el');
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
 
     // Local File Sync Handle
     let directoryHandle = null;
@@ -55,9 +58,51 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSpreadIdx = 0;
     let allPages = [];
 
-    // Constants must match CSS perfectly
-    const WRITING_HEIGHT = 580; // Hardcoded in CSS
-    const WRITING_WIDTH = 400;  // 500 - 100 padding
+    // Dynamic Dimensions
+    let WRITING_HEIGHT = 580;
+    let WRITING_WIDTH = 400;
+
+    const updateDimensions = () => {
+        const isMobile = window.innerWidth <= 800;
+        const writingArea = isMobile ? leftText : leftText; // same element, different CSS
+        
+        // Get dimensions from computed style
+        const bookStyle = getComputedStyle(document.documentElement);
+        const paddingV = parseInt(bookStyle.getPropertyValue('--page-padding-v')) || 60;
+        const paddingH = parseInt(bookStyle.getPropertyValue('--page-padding-h')) || 50;
+        
+        // Use offsetWidth/Height of the container to be sure
+        const bookHeight = document.querySelector('.book').offsetHeight;
+        const pageWidth = document.querySelector('.page-left').offsetWidth;
+
+        WRITING_HEIGHT = bookHeight - (paddingV * 2);
+        WRITING_WIDTH = pageWidth - (paddingH * 2);
+
+        // Minimum safety
+        if (WRITING_WIDTH < 100) WRITING_WIDTH = 300;
+        if (WRITING_HEIGHT < 100) WRITING_HEIGHT = 400;
+
+        syncGhost();
+    };
+
+    let lastIsMobile = window.innerWidth <= 800;
+
+    const handleResize = () => {
+        const isMobile = window.innerWidth <= 800;
+        
+        // Convert currentSpreadIdx to preserve position
+        if (isMobile && !lastIsMobile) {
+            // Desktop -> Mobile (Spread -> Single)
+            currentSpreadIdx = currentSpreadIdx * 2;
+        } else if (!isMobile && lastIsMobile) {
+            // Mobile -> Desktop (Single -> Spread)
+            currentSpreadIdx = Math.floor(currentSpreadIdx / 2);
+        }
+        
+        lastIsMobile = isMobile;
+        updateDimensions();
+        repaginate();
+    };
 
     // Re-check ghost styles once
     const syncGhost = () => {
@@ -117,24 +162,38 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const render = () => {
-        const leftIdx = currentSpreadIdx * 2;
-        const rightIdx = leftIdx + 1;
+        const isMobile = window.innerWidth <= 800;
+        
+        if (isMobile) {
+            // Single page mode on mobile
+            const currentIdx = currentSpreadIdx; 
+            const content = allPages[currentIdx] || '';
+            
+            if (leftText.innerHTML !== content) leftText.innerHTML = content;
+            leftNum.textContent = currentIdx + 1;
+            pageLabel.textContent = `Sayfa ${currentIdx + 1}`;
+            
+            prevBtn.disabled = currentIdx === 0;
+            nextBtn.disabled = false;
+        } else {
+            // Spread mode on desktop
+            const leftIdx = currentSpreadIdx * 2;
+            const rightIdx = leftIdx + 1;
 
-        const leftContent = allPages[leftIdx] || '';
-        const rightContent = allPages[rightIdx] || '';
+            const leftContent = allPages[leftIdx] || '';
+            const rightContent = allPages[rightIdx] || '';
 
-        // Optimization: Only update DOM if changed to keep selection/cursor
-        if (leftText.innerHTML !== leftContent) leftText.innerHTML = leftContent;
-        if (rightText.innerHTML !== rightContent) rightText.innerHTML = rightContent;
+            if (leftText.innerHTML !== leftContent) leftText.innerHTML = leftContent;
+            if (rightText.innerHTML !== rightContent) rightText.innerHTML = rightContent;
 
-        leftNum.textContent = leftIdx + 1;
-        rightNum.textContent = rightIdx + 1;
+            leftNum.textContent = leftIdx + 1;
+            rightNum.textContent = rightIdx + 1;
 
-        pageLabel.textContent = `Sayfa ${leftIdx + 1} - ${rightIdx + 1}`;
+            pageLabel.textContent = `Sayfa ${leftIdx + 1} - ${rightIdx + 1}`;
 
-        prevBtn.disabled = currentSpreadIdx === 0;
-        // Navigation is always available in forward direction
-        nextBtn.disabled = false;
+            prevBtn.disabled = currentSpreadIdx === 0;
+            nextBtn.disabled = false;
+        }
 
         renderChapterItems();
     };
@@ -143,30 +202,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const onInput = (e) => {
         const el = e.target;
         const isLeft = el.id === 'left-text';
-        const pageIdx = currentSpreadIdx * 2 + (isLeft ? 0 : 1);
+        const isMobile = window.innerWidth <= 800;
+        
+        let pageIdx;
+        if (isMobile) {
+            pageIdx = currentSpreadIdx;
+        } else {
+            pageIdx = currentSpreadIdx * 2 + (isLeft ? 0 : 1);
+        }
+        
         const chapter = getActiveChapter();
 
         // 1. Check for immediate overflow
         if (el.scrollHeight > WRITING_HEIGHT) {
-            // A word overflowed. Repaginate immediately to find the new split.
-            // But first sync what we have
             allPages[pageIdx] = el.innerHTML;
             chapter.content = allPages.join('');
 
             repaginate();
 
-            // Shift focus if text moved away from current container
-            if (isLeft) {
-                // Check if right page now has content it didn't have before
-                setCursor(rightText, 0);
-            } else {
-                // Right overflowed -> turn spread
+            if (isMobile) {
                 currentSpreadIdx++;
                 repaginate();
                 setCursor(leftText, 0);
+            } else {
+                if (isLeft) {
+                    setCursor(rightText, 0);
+                } else {
+                    currentSpreadIdx++;
+                    repaginate();
+                    setCursor(leftText, 0);
+                }
             }
         } else {
-            // Normal typing, just sync data
             allPages[pageIdx] = el.innerHTML;
             chapter.content = allPages.join('');
         }
@@ -250,6 +317,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const startSync = async () => {
+        if (!window.showDirectoryPicker) {
+            alert('Bu özellik (Bilgisayara Eşitle) şu an sadece bilgisayar tarayıcılarında (Chrome, Edge) desteklenmektedir. Telefon tarayıcılarında desteklenmez.');
+            return;
+        }
         try {
             // If we already have a handle, check permissions
             if (directoryHandle) {
@@ -349,10 +420,15 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             li.onclick = () => {
-                if (c.id === activeChapterId) return;
+                if (c.id === activeChapterId) {
+                    if (window.innerWidth <= 800) sidebar.classList.remove('open');
+                    return;
+                }
                 activeChapterId = c.id;
                 currentSpreadIdx = 0;
                 bookEl.classList.add('flip-anim');
+                if (window.innerWidth <= 800) sidebar.classList.remove('open');
+                
                 setTimeout(() => {
                     repaginate();
                     bookEl.classList.remove('flip-anim');
@@ -386,11 +462,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nextBtn.onclick = () => {
         currentSpreadIdx++;
-        // ensure placeholder pages exist
-        const idx = currentSpreadIdx * 2;
+        const isMobile = window.innerWidth <= 800;
+        const idx = isMobile ? currentSpreadIdx : currentSpreadIdx * 2;
         if (!allPages[idx]) allPages[idx] = '';
         render();
     };
+
+    // Sidebar Toggle
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+    });
+
+    // Close sidebar when clicking main content on mobile
+    document.querySelector('.main-content').addEventListener('click', (e) => {
+        if (window.innerWidth <= 800 && sidebar.classList.contains('open')) {
+            // only close if not clicking toggle itself
+            if (!menuToggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // Handle Resize
+    window.addEventListener('resize', handleResize);
 
     const onPaste = (e) => {
         e.preventDefault();
@@ -404,5 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     leftText.addEventListener('paste', onPaste);
     rightText.addEventListener('paste', onPaste);
 
+    // Initial Setup
+    updateDimensions();
     repaginate();
 });
