@@ -1,89 +1,135 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonsuz Kitap - Yazma Atölyesi</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Sonsuz Kitap | Kelimelerin Senin Mirasın</title>
+    <link rel="stylesheet" href="landing.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <div class="grain-overlay"></div>
-    <div class="save-notification" id="save-notification">Kaydedildi...</div>
 
-    <button id="menu-toggle" class="mobile-only-btn">☰</button>
-
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Bölümler</h2>
-                <button id="add-chapter-btn">+</button>
-            </div>
-            <ul id="chapters-list"></ul>
-
-            <div class="stats-panel">
-                <div class="stat-row">
-                    <span class="stat-label">Kelime</span>
-                    <span id="stat-words" class="stat-value">0</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Karakter</span>
-                    <span id="stat-chars" class="stat-value">0</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Sayfa</span>
-                    <span id="stat-pages" class="stat-value">0</span>
-                </div>
-            </div>
-
-            <div style="padding: 20px 30px;">
-                <button id="sync-folder-btn"
-                    style="width: 100%; padding: 12px; border-radius: 8px; background: #d4af37; color: #000; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Poppins', sans-serif;">
-                    <span style="font-size: 1.2em;">📁</span> Bilgisayara Eşitle
-                </button>
-                <div id="sync-status"
-                    style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center;">Klasör
-                    Seçilmedi</div>
-            </div>
-        </aside>
-        <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-        <!-- Main Window -->
-        <main class="main-content">
-            <div class="top-bar">
-                <button id="prev-btn" class="nav-btn">Önceki</button>
-                <div id="page-label">Sayfa 1 - 2</div>
-                <button id="next-btn" class="nav-btn">Sonraki</button>
-            </div>
-
-            <div class="book-container">
-                <div class="book" id="book-el">
-                    <div class="spine-border"></div>
-
-                    <!-- Left Page -->
-                    <div class="page page-left">
-                        <div id="left-text" class="writing-area" contenteditable="true"></div>
-                        <div class="page-footer" id="left-num">1</div>
-                    </div>
-
-                    <!-- Right Page -->
-                    <div class="page page-right">
-                        <div id="right-text" class="writing-area" contenteditable="true"></div>
-                        <div class="page-footer" id="right-num">2</div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">Sonsuz<span>Kitap</span></a>
+            <div class="nav-links" id="nav-actions">
+                <a href="dashboard.html" class="nav-item" id="nav-library-link">📚 <span>Kütüphanem</span></a>
+                <div class="user-profile-nav">
+                    <button class="profile-trigger" id="profile-trigger">👤</button>
+                    <div class="nav-dropdown" id="profile-dropdown">
+                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="fade-up">Zamana Meydan Okuyan <br><span class="italic">Hikayeler Yazın</span></h1>
+            <p class="fade-up" style="animation-delay: 0.2s;">Geleneksel kağıt hissini modern teknolojiyle buluşturan, sonsuz sayfa yapısına sahip en gelişmiş dijital yazı atölyesi.</p>
+            <div class="hero-btns fade-up" style="animation-delay: 0.4s;">
+                <a href="editor.html" class="btn-hero">Yazmaya Başla</a>
+                <a href="#kesfet" class="btn-outline">Keşfet</a>
+            </div>
+        </div>
+        <div class="hero-visual fade-in">
+            <div class="image-wrapper">
+                <img src="hero.png" alt="Sonsuz Kitap">
+                <div class="floating-stat">
+                    <span class="stat-num">∞</span>
+                    <span class="stat-txt">Sonsuz Sayfa</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="ozellikler" class="features">
+        <div class="section-title">
+            <h2>Neden Sonsuz Kitap?</h2>
+            <div class="title-line"></div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <h3>Sonsuz Sayfa Yapısı</h3>
+                <p>Siz yazdıkça genişleyen, harf harf büyüyen dinamik sayfa sistemiyle akışınızı bozmayın.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>Klasör Eşitleme</h3>
+                <p>Dosyalarınız bulutta kaybolmasın. Doğrudan kendi bilgisayarınızdaki bir klasöre anlık eşitleyin.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Dikkat Dağıtmayan Tasarım</h3>
+                <p>Sadece siz ve kelimeleriniz. Gece modu ve kağıt dokusuyla gözlerinizi yormayan premium deneyim.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-box">
+            <h2>Mirasınızı Bugün Yazmaya Başlayın</h2>
+            <p>Ücretsiz, hızlı ve sonsuz. Hayalinizdeki kitabı oluşturmak için bir adım atın.</p>
+            <a href="editor.html" class="btn-hero large">Hemen Yazmaya Başla</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Sonsuz Kitap. Tüm hakları saklıdır.</p>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Giriş Yap</button>
+                <button class="tab-btn" data-tab="register">Kayıt Ol</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="input-group">
+                    <label>E-posta</label>
+                    <input type="email" placeholder="ornek@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-hero full-width">Giriş Yap</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form">
+                <div class="input-group">
+                    <label>Ad Soyad</label>
+                    <input type="text" placeholder="Adınız Soyadınız" required>
+                </div>
+                <div class="input-group">
+                    <label>E-posta</label>
+                    <input type="email" placeholder="ornek@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Şifre</label>
+                    <input type="password" placeholder="En az 6 karakter" required>
+                </div>
+                <button type="submit" class="btn-hero full-width">Hesap Oluştur</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Hidden Ghost Page for Calculation -->
-    <div id="ghost-page"
-        style="position: absolute; left: -9999px; width: 450px; padding: 0; font-size: 14px; line-height: 1.6; font-family: 'Poppins', sans-serif; text-align: left; hyphens: auto; -webkit-hyphens: auto; visibility: hidden; white-space: pre-wrap; overflow-wrap: break-word;">
-    </div>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <script src="script.js"></script>
+    <script src="landing.js"></script>
 </body>
-
 </html>

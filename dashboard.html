@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kütüphanem | Sonsuz Kitap</title>
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="grain-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-item active">📚 <span>Kütüphanem</span></a>
+                <div class="user-profile-nav">
+                    <button class="profile-trigger" id="profile-trigger">👤</button>
+                    <div class="nav-dropdown" id="profile-dropdown">
+                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <header class="dashboard-header">
+            <h1 class="fade-up">Hoş Geldin, <span id="user-name">Yazar</span></h1>
+            <p class="fade-up" style="animation-delay: 0.1s;">Yazın yolculuğun burada saklı. Harf harf inşa ettiğin evrenin özeti.</p>
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="stats-grid fade-up" style="animation-delay: 0.2s;">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-info">
+                    <span class="stat-label">Toplam Kitap</span>
+                    <h2 id="total-books">0</h2>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📄</div>
+                <div class="stat-info">
+                    <span class="stat-label">Toplam Bölüm</span>
+                    <h2 id="total-chapters">0</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="library-section fade-up" style="animation-delay: 0.3s;">
+            <div class="section-header">
+                <h2>Kitaplarım</h2>
+                <button id="open-create-book" class="add-new-btn">+ Yeni Kitap Oluştur</button>
+            </div>
+            <div id="books-grid" class="books-grid">
+                <!-- Books will be loaded here -->
+                <div class="loading-spinner">Kitaplarınız yükleniyor...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal: Create Book -->
+    <div id="create-book-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('create-book-modal')">&times;</button>
+            <h2 class="modal-title">Yeni Kitap Oluştur</h2>
+            <form id="create-book-form" class="auth-form active">
+                <div class="input-group">
+                    <label>Kitap İsmi (Zorunlu)</label>
+                    <input type="text" id="book-title" placeholder="Kitabınızın adı ne olsun?" required>
+                </div>
+                <div class="input-group">
+                    <label>Kitap Kapağı (Önerilen: 400x600 px)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="book-cover-input" accept="image/*" style="display: none;">
+                        <button type="button" class="btn-outline full-width" onclick="document.getElementById('book-cover-input').click()">📁 Görsel Seç</button>
+                    </div>
+                    <div id="cover-preview" class="cover-preview-box">
+                        <p>Henüz görsel seçilmedi</p>
+                    </div>
+                </div>
+                <button type="submit" class="btn-hero full-width">Kitabı Oluştur</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Chapters Overlay -->
+    <div id="chapters-overlay" class="modal">
+        <div class="modal-content wide">
+            <button class="modal-close" onclick="closeModal('chapters-overlay')">&times;</button>
+            <div class="overlay-header">
+                <h2 id="overlay-book-title">Kitap Başlığı</h2>
+                <p id="overlay-book-stats">0 Bölüm</p>
+            </div>
+            
+            <div id="overlay-chapters-list" class="overlay-chapters-list">
+                <!-- Chapters item -->
+            </div>
+
+            <div class="overlay-footer">
+                <button id="start-writing-btn" class="btn-hero full-width">Yazmaya Başla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

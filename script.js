@@ -1,4 +1,53 @@
+// --- Firebase Configuration ---
+const firebaseConfig = {
+    apiKey: "AIzaSyCxPH0ohsOMat7cuww92JqGZ5WGKeh-xYY",
+    authDomain: "noctis-book.firebaseapp.com",
+    projectId: "noctis-book",
+    storageBucket: "noctis-book.firebasestorage.app",
+    messagingSenderId: "15928220680",
+    appId: "1:15928220680:web:a72396eaa6387bb83d45bd",
+    measurementId: "G-VTW367KQWE"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const fdb = firebase.firestore();
+
+const handleDropdownLogic = () => {
+    const profileTrigger = document.getElementById('profile-trigger');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    const userInfoName = document.getElementById('user-info-name');
+
+    if (profileTrigger && profileDropdown) {
+        profileTrigger.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        };
+
+        window.addEventListener('click', (e) => {
+            if (!profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    // URL Params
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('bookId');
+    const targetChapterId = urlParams.get('chapterId');
+
+    if (!bookId) {
+        alert('Kitap ID bulunamadı. Kütüphaneye yönlendiriliyorsunuz.');
+        window.location.href = 'dashboard.html';
+        return;
+    }
+
     // Elements Reference
     const leftText = document.getElementById('left-text');
     const rightText = document.getElementById('right-text');
@@ -19,143 +68,101 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.querySelector('.sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    // Local File Sync Handle
-    let directoryHandle = null;
-    let isSyncing = false;
-
-    // --- IndexedDB Helper for Handle Persistence ---
-    const dbName = 'BookSyncDB';
-    const storeName = 'handles';
-
-    const saveHandle = async (handle) => {
-        const db = await openDB();
-        const tx = db.transaction(storeName, 'readwrite');
-        tx.objectStore(storeName).put(handle, 'syncFolder');
-    };
-
-    const loadHandle = async () => {
-        const db = await openDB();
-        return new Promise((resolve) => {
-            const req = db.transaction(storeName).objectStore(storeName).get('syncFolder');
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => resolve(null);
-        });
-    };
-
-    const openDB = () => {
-        return new Promise((resolve) => {
-            const req = indexedDB.open(dbName, 1);
-            req.onupgradeneeded = () => req.result.createObjectStore(storeName);
-            req.onsuccess = () => resolve(req.result);
-        });
-    };
-
-    // State
-    let chapters = JSON.parse(localStorage.getItem('book_v8_chapters')) || [
-        { id: Date.now(), title: 'Giriş', content: 'Buraya hikayenizi yazmaya başlayın...' }
-    ];
-    let activeChapterId = parseInt(localStorage.getItem('book_v8_active_id')) || chapters[0].id;
+    // --- State ---
+    let chapters = [{ id: Date.now(), title: 'Giriş', content: 'Buraya hikayenizi yazmaya başlayın...' }];
+    let activeChapterId = chapters[0].id;
     let currentSpreadIdx = 0;
     let allPages = [];
 
-    // Dynamic Dimensions
+    // --- Load Data ---
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const userInfoName = document.getElementById('user-info-name');
+        if (userInfoName) userInfoName.textContent = user.displayName || 'Yazar';
+        handleDropdownLogic();
+
+        try {
+            // Fetch Specific Book
+            const doc = await fdb.collection('user_books').doc(bookId).get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.userId !== user.uid) {
+                    alert('Bu kitaba erişim izniniz yok.');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                if (data.chapters && data.chapters.length > 0) {
+                    chapters = data.chapters;
+                    // Jump to chapter if specified, else last or first
+                    if (targetChapterId) {
+                        activeChapterId = parseInt(targetChapterId);
+                    } else {
+                        activeChapterId = chapters[0].id;
+                    }
+                } else {
+                    // Start fresh if no chapters
+                    chapters = [{ id: Date.now(), title: 'Giriş', content: '' }];
+                    activeChapterId = chapters[0].id;
+                }
+            } else {
+                alert('Kitap bulunamadı.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            repaginate();
+        } catch (err) {
+            console.error('Veri yükleme hatası:', err);
+        }
+    });
+
+    // Pagination Logic
     let WRITING_HEIGHT = 580;
     let WRITING_WIDTH = 400;
 
     const updateDimensions = () => {
-        const isMobile = window.innerWidth <= 800;
-        const writingArea = isMobile ? leftText : leftText; // same element, different CSS
-        
-        // Get dimensions from computed style
-        const bookStyle = getComputedStyle(document.documentElement);
-        const paddingV = parseInt(bookStyle.getPropertyValue('--page-padding-v')) || 60;
-        const paddingH = parseInt(bookStyle.getPropertyValue('--page-padding-h')) || 50;
-        
-        // Use offsetWidth/Height of the container to be sure
-        const bookHeight = document.querySelector('.book').offsetHeight;
-        const pageWidth = document.querySelector('.page-left').offsetWidth;
-
-        WRITING_HEIGHT = bookHeight - (paddingV * 2);
-        WRITING_WIDTH = pageWidth - (paddingH * 2);
-
-        // Minimum safety
-        if (WRITING_WIDTH < 100) WRITING_WIDTH = 300;
-        if (WRITING_HEIGHT < 100) WRITING_HEIGHT = 400;
-
+        WRITING_HEIGHT = leftText.clientHeight;
+        WRITING_WIDTH = leftText.clientWidth;
+        if (WRITING_WIDTH < 50) WRITING_WIDTH = 400;
+        if (WRITING_HEIGHT < 50) WRITING_HEIGHT = 580;
         syncGhost();
     };
 
-    let lastIsMobile = window.innerWidth <= 800;
-
-    const handleResize = () => {
-        const isMobile = window.innerWidth <= 800;
-        
-        // Convert currentSpreadIdx to preserve position
-        if (isMobile && !lastIsMobile) {
-            // Desktop -> Mobile (Spread -> Single)
-            currentSpreadIdx = currentSpreadIdx * 2;
-        } else if (!isMobile && lastIsMobile) {
-            // Mobile -> Desktop (Single -> Spread)
-            currentSpreadIdx = Math.floor(currentSpreadIdx / 2);
-        }
-        
-        lastIsMobile = isMobile;
-        updateDimensions();
-        repaginate();
-    };
-
-    // Re-check ghost styles once
     const syncGhost = () => {
         ghostPage.style.width = WRITING_WIDTH + 'px';
-        ghostPage.style.padding = '0'; // Important: remove padding to match writing-area content width
         ghostPage.style.fontSize = '14px';
         ghostPage.style.lineHeight = '1.6';
         ghostPage.style.fontFamily = "'Poppins', sans-serif";
         ghostPage.style.textAlign = 'left';
         ghostPage.style.whiteSpace = 'pre-wrap';
         ghostPage.style.wordWrap = 'break-word';
-        ghostPage.style.hyphens = 'auto';
-        ghostPage.style.webkitHyphens = 'auto';
         ghostPage.style.visibility = 'hidden';
         ghostPage.style.position = 'absolute';
     };
 
-    // --- Logic ---
-
     const getActiveChapter = () => chapters.find(c => c.id === activeChapterId) || chapters[0];
 
-    // The core re-calculation engine
     const repaginate = () => {
         const chapter = getActiveChapter();
-        const text = chapter.content;
+        const text = chapter.content || '';
         const pages = [];
-
         syncGhost();
         ghostPage.innerHTML = '';
-
-        // Tokenize by word but keep all whitespace
         const tokens = text.split(/(\s+)/);
-        let currentPageHTML = '';
+        let currentHTML = '';
 
         for (let token of tokens) {
-            ghostPage.innerHTML = currentPageHTML + token;
-
-            // overflow check
+            ghostPage.innerHTML = currentHTML + token;
             if (ghostPage.scrollHeight > WRITING_HEIGHT) {
-                // If the single token itself is too big (shouldn't happen with words), push it anyway
-                if (currentPageHTML === '') {
-                    pages.push(token);
-                    currentPageHTML = '';
-                } else {
-                    pages.push(currentPageHTML);
-                    currentPageHTML = token;
-                }
-            } else {
-                currentPageHTML += token;
-            }
+                if (currentHTML === '') { pages.push(token); currentHTML = ''; }
+                else { pages.push(currentHTML); currentHTML = token; }
+            } else { currentHTML += token; }
         }
-        pages.push(currentPageHTML); // push remainder
-
+        pages.push(currentHTML);
         allPages = pages;
         render();
         updateStats();
@@ -163,346 +170,138 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const render = () => {
         const isMobile = window.innerWidth <= 800;
-        
         if (isMobile) {
-            // Single page mode on mobile
-            const currentIdx = currentSpreadIdx; 
-            const content = allPages[currentIdx] || '';
-            
+            const content = allPages[currentSpreadIdx] || '';
             if (leftText.innerHTML !== content) leftText.innerHTML = content;
-            leftNum.textContent = currentIdx + 1;
-            pageLabel.textContent = `Sayfa ${currentIdx + 1}`;
-            
-            prevBtn.disabled = currentIdx === 0;
-            nextBtn.disabled = false;
-        } else {
-            // Spread mode on desktop
-            const leftIdx = currentSpreadIdx * 2;
-            const rightIdx = leftIdx + 1;
-
-            const leftContent = allPages[leftIdx] || '';
-            const rightContent = allPages[rightIdx] || '';
-
-            if (leftText.innerHTML !== leftContent) leftText.innerHTML = leftContent;
-            if (rightText.innerHTML !== rightContent) rightText.innerHTML = rightContent;
-
-            leftNum.textContent = leftIdx + 1;
-            rightNum.textContent = rightIdx + 1;
-
-            pageLabel.textContent = `Sayfa ${leftIdx + 1} - ${rightIdx + 1}`;
-
+            leftNum.textContent = currentSpreadIdx + 1;
+            pageLabel.textContent = `Sayfa ${currentSpreadIdx + 1}`;
             prevBtn.disabled = currentSpreadIdx === 0;
-            nextBtn.disabled = false;
+        } else {
+            const lIdx = currentSpreadIdx * 2;
+            const rIdx = lIdx + 1;
+            if (leftText.innerHTML !== (allPages[lIdx] || '')) leftText.innerHTML = allPages[lIdx] || '';
+            if (rightText.innerHTML !== (allPages[rIdx] || '')) rightText.innerHTML = allPages[rIdx] || '';
+            leftNum.textContent = lIdx + 1;
+            rightNum.textContent = rIdx + 1;
+            pageLabel.textContent = `Sayfa ${lIdx + 1} - ${rIdx + 1}`;
+            prevBtn.disabled = currentSpreadIdx === 0;
         }
-
         renderChapterItems();
     };
 
-    // Input flow handler
     const onInput = (e) => {
         const el = e.target;
-        const isLeft = el.id === 'left-text';
         const isMobile = window.innerWidth <= 800;
-        
-        let pageIdx;
-        if (isMobile) {
-            pageIdx = currentSpreadIdx;
-        } else {
-            pageIdx = currentSpreadIdx * 2 + (isLeft ? 0 : 1);
-        }
-        
+        let idx = isMobile ? currentSpreadIdx : (currentSpreadIdx * 2 + (el.id === 'left-text' ? 0 : 1));
         const chapter = getActiveChapter();
 
-        // 1. Check for immediate overflow
-        if (el.scrollHeight > WRITING_HEIGHT) {
-            allPages[pageIdx] = el.innerHTML;
+        if (el.scrollHeight > WRITING_HEIGHT + 3) {
+            allPages[idx] = el.innerHTML;
             chapter.content = allPages.join('');
-
             repaginate();
-
-            if (isMobile) {
-                currentSpreadIdx++;
-                repaginate();
-                setCursor(leftText, 0);
-            } else {
-                if (isLeft) {
-                    setCursor(rightText, 0);
-                } else {
-                    currentSpreadIdx++;
-                    repaginate();
-                    setCursor(leftText, 0);
-                }
-            }
+            if (isMobile) { if (allPages.length > idx+1) { currentSpreadIdx++; render(); setCursor(leftText); } }
+            else { if (el.id === 'left-text') setCursor(rightText); else { currentSpreadIdx++; render(); setCursor(leftText); } }
         } else {
-            allPages[pageIdx] = el.innerHTML;
+            allPages[idx] = el.innerHTML;
             chapter.content = allPages.join('');
         }
-
         debounceSave();
         updateStats();
     };
 
-    const setCursor = (el, offset) => {
+    const setCursor = (el) => {
         el.focus();
         const range = document.createRange();
         const sel = window.getSelection();
         range.selectNodeContents(el);
-        range.collapse(true); // to start of the new page
+        range.collapse(true);
         sel.removeAllRanges();
         sel.addRange(range);
     };
 
     const updateStats = () => {
         const chapter = getActiveChapter();
-        const plain = chapter.content.replace(/<[^>]*>/g, ' ');
-        const words = plain.trim() ? plain.trim().split(/\s+/).length : 0;
-        statWords.textContent = words;
+        const plain = (chapter.content ||'').replace(/<[^>]*>/g, ' ');
+        statWords.textContent = plain.trim() ? plain.trim().split(/\s+/).length : 0;
         statChars.textContent = plain.length;
         statPages.textContent = allPages.length;
     };
 
-    const syncFolderBtn = document.getElementById('sync-folder-btn');
-    const syncStatus = document.getElementById('sync-status');
-
-    const syncToLocal = async () => {
-        if (!directoryHandle || isSyncing) {
-            if (isSyncing) syncStatus.textContent = 'Meşgul...';
-            return;
-        }
-
-        isSyncing = true;
-        try {
-            syncStatus.textContent = 'Güncelleniyor...';
-
-            // 1. Collect file names first
-            const filesToRemove = [];
-            for await (const entry of directoryHandle.values()) {
-                if (entry.kind === 'file' && entry.name.endsWith('.txt')) {
-                    filesToRemove.push(entry.name);
-                }
-            }
-
-            // 2. Sequential deletion
-            for (const name of filesToRemove) {
-                try {
-                    await directoryHandle.removeEntry(name);
-                } catch (e) {
-                    console.warn(`${name} silinemedi:`, e);
-                }
-            }
-
-            // 3. Sequential writing
-            for (let chapter of chapters) {
-                const safeTitle = (chapter.title || 'Adsiz').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                const fileHandle = await directoryHandle.getFileHandle(`${safeTitle}.txt`, { create: true });
-                const writable = await fileHandle.createWritable();
-
-                const plainText = chapter.content
-                    .replace(/<br\s*\/?>/gi, '\n')
-                    .replace(/<p>/gi, '')
-                    .replace(/<\/p>/gi, '\n')
-                    .replace(/&nbsp;/g, ' ')
-                    .replace(/<[^>]*>/g, '');
-
-                await writable.write(plainText);
-                await writable.close();
-            }
-            syncStatus.textContent = 'Eşitlendi ✅';
-        } catch (err) {
-            console.error('Senkronizasyon Hatası:', err);
-            syncStatus.textContent = 'Eşitleme Hatası!';
-        } finally {
-            isSyncing = false;
-        }
-    };
-
-    const startSync = async () => {
-        if (!window.showDirectoryPicker) {
-            alert('Bu özellik (Bilgisayara Eşitle) şu an sadece bilgisayar tarayıcılarında (Chrome, Edge) desteklenmektedir. Telefon tarayıcılarında desteklenmez.');
-            return;
-        }
-        try {
-            // If we already have a handle, check permissions
-            if (directoryHandle) {
-                const permission = await directoryHandle.requestPermission({ mode: 'readwrite' });
-                if (permission === 'granted') {
-                    syncStatus.textContent = 'Eşitlendi ✅';
-                    syncToLocal();
-                    return;
-                }
-            }
-
-            // Otherwise, pick new folder
-            directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-            await saveHandle(directoryHandle);
-            syncStatus.textContent = 'Eşitlendi ✅';
-            syncToLocal();
-        } catch (err) {
-            console.warn('Klasör seçilmedi veya erişim reddedildi');
-        }
-    };
-
-    const restoreSync = async () => {
-        const storedHandle = await loadHandle();
-        if (storedHandle) {
-            directoryHandle = storedHandle;
-            syncStatus.textContent = 'Erişim İzni Bekliyor...';
-            syncStatus.style.color = '#d4af37';
-        }
-    };
-
     let saveTimer;
     const debounceSave = () => {
-        const chapter = getActiveChapter();
         clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
-            // LocalStorage Save
-            localStorage.setItem('book_v8_chapters', JSON.stringify(chapters));
-            localStorage.setItem('book_v8_active_id', activeChapterId);
-
-            // Sync to local directory if selected
-            syncToLocal();
-
+        saveTimer = setTimeout(async () => {
+            const user = auth.currentUser;
+            if (user && bookId) {
+                await fdb.collection('user_books').doc(bookId).update({
+                    chapters: chapters,
+                    lastModified: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
             saveLabel.classList.add('show');
             setTimeout(() => saveLabel.classList.remove('show'), 2000);
         }, 1500);
     };
-
-    syncFolderBtn.onclick = startSync;
-
-    // Auto-restore handle if it exists
-    restoreSync();
 
     const renderChapterItems = () => {
         chaptersList.innerHTML = '';
         chapters.forEach(c => {
             const li = document.createElement('li');
             li.className = `chapter-item ${c.id === activeChapterId ? 'active' : ''}`;
-
-            const titleSpan = document.createElement('span');
-            titleSpan.textContent = c.title || 'Bölüm';
-
-            const delBtn = document.createElement('button');
-            delBtn.className = 'delete-chapter-btn';
-            delBtn.innerHTML = '×';
-            delBtn.title = 'Bölümü Sil';
-
-            delBtn.onclick = async (e) => {
-                e.stopPropagation(); // Don't trigger chapter switch
-                if (chapters.length <= 1) {
-                    alert('Son kalan bölümü silemezsiniz.');
-                    return;
-                }
-                if (confirm(`"${c.title}" bölümünü silmek istediğinize emin misiniz?`)) {
-                    chapters = chapters.filter(chap => chap.id !== c.id);
-                    if (activeChapterId === c.id) {
-                        activeChapterId = chapters[0].id;
-                        currentSpreadIdx = 0;
-                    }
-
-                    // Structural changes (Delete/Add) should be immediate
-                    localStorage.setItem('book_v8_chapters', JSON.stringify(chapters));
-                    localStorage.setItem('book_v8_active_id', activeChapterId);
-                    await syncToLocal();
-                    repaginate();
-                }
-            };
-
-            titleSpan.ondblclick = async (e) => {
+            li.innerHTML = `<span>${c.title}</span><button class="delete-chapter-btn">×</button>`;
+            li.querySelector('.delete-chapter-btn').onclick = (e) => {
                 e.stopPropagation();
-                const newTitle = prompt('Bölüm İsmini Düzenle:', c.title);
-                if (newTitle && newTitle !== c.title) {
-                    c.title = newTitle;
-                    localStorage.setItem('book_v8_chapters', JSON.stringify(chapters));
-                    renderChapterItems();
-                    await syncToLocal(); // Klasördeki dosyayı yeniden adlandırmak için
+                if (chapters.length <= 1) return alert('Son bölüm silinemez.');
+                if (confirm('Bölüm silinsin mi?')) {
+                    chapters = chapters.filter(chap => chap.id !== c.id);
+                    if (activeChapterId === c.id) { activeChapterId = chapters[0].id; currentSpreadIdx = 0; }
+                    repaginate(); debounceSave();
                 }
             };
-
             li.onclick = () => {
-                if (c.id === activeChapterId) {
-                    if (window.innerWidth <= 800) sidebar.classList.remove('open');
-                    return;
-                }
+                if (c.id === activeChapterId) return;
                 activeChapterId = c.id;
                 currentSpreadIdx = 0;
                 bookEl.classList.add('flip-anim');
-                if (window.innerWidth <= 800) sidebar.classList.remove('open');
-                
-                setTimeout(() => {
-                    repaginate();
-                    bookEl.classList.remove('flip-anim');
-                }, 400);
+                setTimeout(() => { repaginate(); bookEl.classList.remove('flip-anim'); }, 400);
             };
-
-            li.appendChild(titleSpan);
-            li.appendChild(delBtn);
             chaptersList.appendChild(li);
         });
     };
 
-    // --- Controls ---
-
-    addChapterBtn.onclick = async () => {
-        const title = prompt('Bölüm İsmi:', `Bölüm ${chapters.length + 1}`);
-        if (!title) return;
-        chapters.push({ id: Date.now(), title, content: '' });
+    addChapterBtn.onclick = () => {
+        const t = prompt('Bölüm İsmi:');
+        if (!t) return;
+        chapters.push({ id: Date.now(), title: t, content: '' });
         activeChapterId = chapters[chapters.length - 1].id;
         currentSpreadIdx = 0;
-        repaginate();
-        await syncToLocal(); // Immediate sync for new chapter
+        repaginate(); debounceSave();
     };
 
-    prevBtn.onclick = () => {
-        if (currentSpreadIdx > 0) {
-            currentSpreadIdx--;
-            render();
-        }
-    };
+    prevBtn.onclick = () => { if (currentSpreadIdx > 0) { currentSpreadIdx--; render(); } };
+    nextBtn.onclick = () => { currentSpreadIdx++; render(); };
 
-    nextBtn.onclick = () => {
-        currentSpreadIdx++;
-        const isMobile = window.innerWidth <= 800;
-        const idx = isMobile ? currentSpreadIdx : currentSpreadIdx * 2;
-        if (!allPages[idx]) allPages[idx] = '';
-        render();
-    };
+    const trans = document.createElement('div');
+    trans.id = 'page-transition'; trans.classList.add('active');
+    trans.innerHTML = '<div class="transition-logo">Sonsuz Kitap</div>';
+    document.body.appendChild(trans);
+    window.addEventListener('load', () => setTimeout(() => {
+        trans.classList.add('hidden'); setTimeout(()=>trans.classList.remove('active'), 600);
+    }, 300));
 
-    // Sidebar Toggle
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-    });
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.onclick = (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => window.location.href = 'index.html');
+        };
+    }
 
-    sidebarOverlay.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-    });
-
-    // Close sidebar when clicking main content on mobile
-    document.querySelector('.main-content').addEventListener('click', (e) => {
-        if (window.innerWidth <= 800 && sidebar.classList.contains('open')) {
-            // only close if not clicking toggle itself
-            if (!menuToggle.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        }
-    });
-
-    // Handle Resize
-    window.addEventListener('resize', handleResize);
-
-    const onPaste = (e) => {
-        e.preventDefault();
-        const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-        document.execCommand("insertText", false, text);
-        onInput({ target: e.target });
-    };
-
-    leftText.addEventListener('input', onInput);
-    rightText.addEventListener('input', onInput);
-    leftText.addEventListener('paste', onPaste);
-    rightText.addEventListener('paste', onPaste);
-
-    // Initial Setup
+    menuToggle.onclick = () => sidebar.classList.toggle('open');
+    sidebarOverlay.onclick = () => sidebar.classList.remove('open');
+    window.onresize = () => { updateDimensions(); repaginate(); };
+    leftText.oninput = onInput;
+    rightText.oninput = onInput;
+    
     updateDimensions();
-    repaginate();
 });

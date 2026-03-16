@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilim | Sonsuz Kitap</title>
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        .profile-card {
+            background: var(--dash-card);
+            border: 1px solid var(--dash-border);
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 600px;
+            margin: 0 auto;
+            backdrop-filter: blur(20px);
+        }
+        .profile-avatar {
+            width: 100px; height: 100px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px solid var(--dash-gold);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-item">📚 <span>Kütüphanem</span></a>
+                <div class="user-profile-nav">
+                    <button class="profile-trigger" id="profile-trigger">👤</button>
+                    <div class="nav-dropdown" id="profile-dropdown">
+                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link active">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <header class="dashboard-header" style="text-align: center;">
+            <h1 class="fade-up">Profil Ayarları</h1>
+            <p class="fade-up" style="animation-delay: 0.1s;">Yazarlık kimliğini buradan güncelleyebilirsin.</p>
+        </header>
+
+        <section class="profile-card fade-up" style="animation-delay: 0.2s;">
+            <div class="profile-avatar">👤</div>
+            
+            <form id="profile-form" class="auth-form active">
+                <div class="input-group">
+                    <label>Görünen Adın</label>
+                    <input type="text" id="display-name-input" placeholder="Adınız Soyadınız" required>
+                </div>
+                <div class="input-group">
+                    <label>E-posta Adresi (Değiştirilemez)</label>
+                    <input type="email" id="email-display" disabled style="opacity: 0.5;">
+                </div>
+                <button type="submit" class="btn-hero full-width">Bilgileri Güncelle</button>
+            </form>
+            
+            <div id="save-msg" style="margin-top: 20px; text-align: center; font-size: 14px; color: var(--dash-gold); display: none;">
+                Değişiklikler başarıyla kaydedildi!
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="profile.js"></script>
+</body>
+</html>
