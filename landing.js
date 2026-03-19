@@ -1,22 +1,4 @@
-// --- Firebase Configuration ---
-// ÖNEMLİ: Firebase Console'dan (Proje Ayarları) aldığınız bilgileri buraya yapıştırın!
-const firebaseConfig = {
-    apiKey: "AIzaSyCxPH0ohsOMat7cuww92JqGZ5WGKeh-xYY",
-    authDomain: "noctis-book.firebaseapp.com",
-    projectId: "noctis-book",
-    storageBucket: "noctis-book.firebasestorage.app",
-    messagingSenderId: "15928220680",
-    appId: "1:15928220680:web:a72396eaa6387bb83d45bd",
-    measurementId: "G-VTW367KQWE"
-};
-
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const auth = firebase.auth();
-const db = firebase.firestore();
+// auth and db are now provided by firebase-config.js global scope
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Existing Animations & Scroll Logic ---
@@ -260,8 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 discoverGrid.appendChild(card);
             });
         } catch (err) {
-            console.error(err);
-            discoverGrid.innerHTML = '<div class="loading-spinner" style="grid-column: 1 / -1; color: #ff6464; text-align: center;">Eserler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</div>';
+            console.error("Home Load Error:", err);
+            discoverGrid.innerHTML = `
+                <div class="loading-spinner" style="grid-column: 1 / -1; color: #ff6464; text-align: center;">
+                    Eserler yüklenirken bir sorun oluştu.<br>
+                    <small>${err.code === 'permission-denied' ? 'Firebase Güvenlik Kuralları erişimi engelliyor. Lütfen kuralları kontrol edin.' : err.message}</small>
+                </div>`;
         }
     };
 

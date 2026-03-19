@@ -1,20 +1,6 @@
-// --- Firebase Configuration ---
-const firebaseConfig = {
-    apiKey: "AIzaSyCxPH0ohsOMat7cuww92JqGZ5WGKeh-xYY",
-    authDomain: "noctis-book.firebaseapp.com",
-    projectId: "noctis-book",
-    storageBucket: "noctis-book.firebasestorage.app",
-    messagingSenderId: "15928220680",
-    appId: "1:15928220680:web:a72396eaa6387bb83d45bd",
-    measurementId: "G-VTW367KQWE"
-};
+// Firebase is now initialized in firebase-config.js
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const auth = firebase.auth();
-const fdb = firebase.firestore();
+// auth and db are now provided by firebase-config.js
 
 const handleDropdownLogic = () => {
     const profileTrigger = document.getElementById('profile-trigger');
@@ -87,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Fetch Specific Book
-            const doc = await fdb.collection('user_books').doc(bookId).get();
+            const doc = await db.collection('user_books').doc(bookId).get();
             if (doc.exists) {
                 const data = doc.data();
                 if (data.userId !== user.uid) {
@@ -233,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTimer = setTimeout(async () => {
             const user = auth.currentUser;
             if (user && bookId) {
-                await fdb.collection('user_books').doc(bookId).update({
+                await db.collection('user_books').doc(bookId).update({
                     chapters: chapters,
                     lastModified: firebase.firestore.FieldValue.serverTimestamp()
                 });

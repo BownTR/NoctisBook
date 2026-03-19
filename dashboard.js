@@ -1,29 +1,15 @@
-// --- Firebase Configuration ---
-const firebaseConfig = {
-    apiKey: "AIzaSyCxPH0ohsOMat7cuww92JqGZ5WGKeh-xYY",
-    authDomain: "noctis-book.firebaseapp.com",
-    projectId: "noctis-book",
-    storageBucket: "noctis-book.firebasestorage.app",
-    messagingSenderId: "15928220680",
-    appId: "1:15928220680:web:a72396eaa6387bb83d45bd",
-    measurementId: "G-VTW367KQWE"
-};
+// auth and db are now provided by firebase-config.js global scope
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// Global closeModal for inline onclick (now in config but keeping redundant for safety or replacing)
+if (typeof window.closeModal !== 'function') {
+    window.closeModal = (id) => {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 400);
+        }
+    };
 }
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Global closeModal for inline onclick
-window.closeModal = (id) => {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.classList.remove('open');
-        setTimeout(() => modal.style.display = 'none', 400);
-    }
-};
 
 const handleDropdownLogic = () => {
     const profileTrigger = document.getElementById('profile-trigger');
@@ -291,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     authorName: user.displayName || 'Anonim Yazar',
                     publishedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                alert('Kitabınız başarıyla ana sayfaya ve keşfet sekmesine uçtu! 🚀');
                 closeModal('publish-book-modal');
                 publishBookForm.reset();
                 loadBooks(user.uid);

@@ -325,6 +325,31 @@ body {
     font-size: 18px;
 }
 
+/* Category Grouping styles */
+.category-group {
+    margin-bottom: 60px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.category-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent-gold);
+    white-space: nowrap;
+}
+
+.category-line {
+    height: 1px;
+    flex-grow: 1;
+    background: linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent);
+}
+
 .discover-section {
     padding: 100px 40px;
     max-width: 1200px;

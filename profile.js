@@ -1,19 +1,4 @@
-// --- Firebase Configuration ---
-const firebaseConfig = {
-    apiKey: "AIzaSyCxPH0ohsOMat7cuww92JqGZ5WGKeh-xYY",
-    authDomain: "noctis-book.firebaseapp.com",
-    projectId: "noctis-book",
-    storageBucket: "noctis-book.firebasestorage.app",
-    messagingSenderId: "15928220680",
-    appId: "1:15928220680:web:a72396eaa6387bb83d45bd",
-    measurementId: "G-VTW367KQWE"
-};
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-const auth = firebase.auth();
+// auth and db are now provided by firebase-config.js
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileForm = document.getElementById('profile-form');
