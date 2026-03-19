@@ -211,4 +211,60 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // --- Load Featured Books (Index) ---
+    const loadFeaturedBooks = async () => {
+        const discoverGrid = document.getElementById('featured-grid');
+        if (!discoverGrid) return;
+
+        try {
+            const snapshot = await db.collection('user_books')
+                .where('published', '==', true)
+                .get();
+
+            let books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            books.sort((a, b) => {
+                const dateA = a.publishedAt ? a.publishedAt.seconds : 0;
+                const dateB = b.publishedAt ? b.publishedAt.seconds : 0;
+                return dateB - dateA; // newest first
+            });
+
+            const featuredBooks = books.slice(0, 4);
+
+            if (featuredBooks.length === 0) {
+                discoverGrid.innerHTML = '<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">Henüz yayınlanmış bir eser bulunmuyor. İlk eseri sen yayınla!</div>';
+                return;
+            }
+
+            discoverGrid.innerHTML = '';
+            featuredBooks.forEach((book, index) => {
+                const coverImg = book.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+                const card = document.createElement('div');
+                card.className = 'discover-card fade-up';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.onclick = () => {
+                    alert('Okuma modu çok yakında eklenecek!'); 
+                };
+
+                card.innerHTML = `
+                    <div class="discover-card-inner">
+                        <img src="${coverImg}" class="discover-cover" alt="Kapak">
+                        <div class="discover-info">
+                            <span class="discover-category">${book.category || 'Roman'}</span>
+                            <h3 class="discover-title">${book.title}</h3>
+                            <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                        </div>
+                    </div>
+                `;
+                discoverGrid.appendChild(card);
+            });
+        } catch (err) {
+            console.error(err);
+            discoverGrid.innerHTML = '<div class="loading-spinner" style="grid-column: 1 / -1; color: #ff6464; text-align: center;">Eserler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</div>';
+        }
+    };
+
+    loadFeaturedBooks();
+
 });

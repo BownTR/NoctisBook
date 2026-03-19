@@ -15,6 +15,8 @@
         <div class="nav-container">
             <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
             <div class="nav-links">
+                <a href="index.html" class="nav-item">🏠 <span>Ana Sayfa</span></a>
+                <a href="discover.html" class="nav-item">🌍 <span>Keşfet</span></a>
                 <a href="dashboard.html" class="nav-item active">📚 <span>Kütüphanem</span></a>
                 <div class="user-profile-nav">
                     <button class="profile-trigger" id="profile-trigger">👤</button>
@@ -105,6 +107,34 @@
             <div class="overlay-footer">
                 <button id="start-writing-btn" class="btn-hero full-width">Yazmaya Başla</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal: Publish Book -->
+    <div id="publish-book-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('publish-book-modal')">&times;</button>
+            <h2 class="modal-title" style="font-size: 28px; margin-bottom: 20px;">Kitabını Yayınla</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px; font-size: 15px;">Kitabını ana sayfada yüzlerce okurun keşfine sunmak üzeresin. Kitabının içeriğine uygun bir kategori seç.</p>
+            <form id="publish-book-form" class="auth-form active">
+                <input type="hidden" id="publish-book-id">
+                <div class="input-group">
+                    <label>Kategori (Zorunlu)</label>
+                    <select id="book-category" required>
+                        <option value="" disabled selected>Bir kategori seç...</option>
+                        <option value="Romantik">Romantik</option>
+                        <option value="Dram">Dram</option>
+                        <option value="Bilim Kurgu">Bilim Kurgu</option>
+                        <option value="Fantastik">Fantastik</option>
+                        <option value="Gizem / Gerilim">Gizem / Gerilim</option>
+                        <option value="Aksiyon / Macera">Aksiyon / Macera</option>
+                        <option value="Kişisel Gelişim">Kişisel Gelişim</option>
+                        <option value="Korku">Korku</option>
+                        <option value="Şiir">Şiir</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-hero full-width" style="margin-top: 10px;">Şimdi Yayınla 🌍</button>
+            </form>
         </div>
     </div>
 

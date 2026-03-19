@@ -123,10 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="book-cover-area">
                     <div class="book-spine-effect"></div>
                     <img src="${coverImg}" alt="${book.title}">
+                    ${book.published ? '<div class="published-badge">Yayınlandı</div>' : ''}
                 </div>
                 <div class="book-info-minimal">
                     <h3>${book.title}</h3>
                     <span>${book.chapters ? book.chapters.length : 0} Bölüm</span>
+                </div>
+                <div class="book-actions">
+                    <button class="btn-publish" onclick="event.stopPropagation(); window.openPublishModal('${book.id}')">
+                        ${book.published ? 'Yayından Kaldır' : 'Yayınla 🌍'}
+                    </button>
                 </div>
             `;
 
@@ -243,6 +249,56 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Kitap oluşturulurken hata: ' + err.message);
         }
     };
+
+    // --- Publish Logic ---
+    window.openPublishModal = async (bookId) => {
+        const book = userBooks.find(b => b.id === bookId);
+        if (!book) return;
+
+        if (book.published) {
+            if (confirm('Kitabınızı yayından kaldırmak istediğinize emin misiniz? Ana sayfada görünmeyecek.')) {
+                try {
+                    await db.collection('user_books').doc(bookId).update({
+                        published: false,
+                        category: firebase.firestore.FieldValue.delete()
+                    });
+                    loadBooks(auth.currentUser.uid);
+                } catch(e) {
+                    alert('Hata: ' + e.message);
+                }
+            }
+            return;
+        }
+
+        document.getElementById('publish-book-id').value = bookId;
+        const modal = document.getElementById('publish-book-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('open'), 10);
+    };
+
+    const publishBookForm = document.getElementById('publish-book-form');
+    if (publishBookForm) {
+        publishBookForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const bookId = document.getElementById('publish-book-id').value;
+            const category = document.getElementById('book-category').value;
+            const user = auth.currentUser;
+
+            try {
+                await db.collection('user_books').doc(bookId).update({
+                    published: true,
+                    category: category,
+                    authorName: user.displayName || 'Anonim Yazar',
+                    publishedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                closeModal('publish-book-modal');
+                publishBookForm.reset();
+                loadBooks(user.uid);
+            } catch(error) {
+                alert('Yayınlama hatası: ' + error.message);
+            }
+        };
+    }
 
     logoutBtn.onclick = (e) => {
         e.preventDefault();
