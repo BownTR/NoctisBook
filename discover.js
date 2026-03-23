@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const catGrid = categorySection.querySelector('.discover-grid');
                 categories[catName].forEach((book, idx) => {
-                    const coverImg = book.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+                    const coverImg = book.cover || 'kapak.png';
                     const card = document.createElement('div');
                     card.className = 'discover-card';
                     card.style.animationDelay = `${idx * 0.1}s`;

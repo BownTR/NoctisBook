@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderBookMeta = () => {
         bookTitleEl.textContent = currentBook.title;
         bookAuthorEl.textContent = `✍ ${currentBook.authorName || 'Anonim Yazar'}`;
-        bookCoverEl.src = currentBook.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+        bookCoverEl.src = currentBook.cover || 'kapak.png';
         bookCategoryEl.textContent = currentBook.category || 'Roman';
         bookViewsEl.textContent = currentBook.views || 0;
         document.title = `${currentBook.title} | Sonsuz Kitap`;

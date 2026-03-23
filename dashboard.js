@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editBookModal = document.getElementById('edit-book-modal');
     const editBookForm = document.getElementById('edit-book-form');
+    const deleteBookBtn = document.getElementById('delete-book-btn');
 
     let userBooks = [];
     let currentEditingBookId = null;
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userBooks.forEach(book => {
             const card = document.createElement('div');
             card.className = 'book-card';
-            const coverImg = book.cover || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400';
+            const coverImg = book.cover || 'kapak.png';
             
             card.innerHTML = `
                 <div class="book-cover-area">
@@ -317,6 +318,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Kitap başarıyla güncellendi.');
             } catch (err) {
                 alert('Güncelleme hatası: ' + err.message);
+            }
+        };
+    }
+
+    if (deleteBookBtn) {
+        deleteBookBtn.onclick = async () => {
+            const bookId = document.getElementById('edit-book-id').value;
+            const book = userBooks.find(b => b.id === bookId);
+            if (!book) return;
+
+            const confirmText = `"${book.title}" başlıklı kitabınızı ve tüm bölümlerini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`;
+            
+            if (confirm(confirmText)) {
+                try {
+                    await db.collection('user_books').doc(bookId).delete();
+                    closeModal('edit-book-modal');
+                    closeModal('chapters-overlay');
+                    loadBooks(auth.currentUser.uid);
+                    alert('Kitap başarıyla silindi.');
+                } catch (err) {
+                    alert('Silme hatası: ' + err.message);
+                }
             }
         };
     }
