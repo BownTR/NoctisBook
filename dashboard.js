@@ -50,8 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlayBookStats = document.getElementById('overlay-book-stats');
     const overlayChaptersList = document.getElementById('overlay-chapters-list');
     const startWritingBtn = document.getElementById('start-writing-btn');
+    const editBookBtnOverlay = document.getElementById('edit-book-btn');
+
+    const editBookModal = document.getElementById('edit-book-modal');
+    const editBookForm = document.getElementById('edit-book-form');
 
     let userBooks = [];
+    let currentEditingBookId = null;
 
     auth.onAuthStateChanged(async (user) => {
         if (!user) {
@@ -138,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Overlay Logic ---
     const showChaptersOverlay = (book) => {
+        currentEditingBookId = book.id;
         overlayBookTitle.textContent = book.title;
         const count = book.chapters ? book.chapters.length : 0;
         overlayBookStats.textContent = `${count} Bölüm Yazıldı`;
@@ -235,6 +241,85 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Kitap oluşturulurken hata: ' + err.message);
         }
     };
+
+    // --- Edit Book Logic ---
+    const editCoverInput = document.getElementById('edit-book-cover-input');
+    const editCoverPreview = document.getElementById('edit-cover-preview');
+    let selectedEditCoverBase64 = null;
+
+    if (editCoverInput) {
+        editCoverInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 400;
+                    canvas.height = 600;
+                    const ctx = canvas.getContext('2d');
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const x = (canvas.width / 2) - (img.width / 2) * scale;
+                    const y = (canvas.height / 2) - (img.height / 2) * scale;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                    selectedEditCoverBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    editCoverPreview.innerHTML = `<img src="${selectedEditCoverBase64}">`;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+    }
+
+    if (editBookBtnOverlay) {
+        editBookBtnOverlay.onclick = () => {
+            const book = userBooks.find(b => b.id === currentEditingBookId);
+            if(!book) return;
+
+            document.getElementById('edit-book-id').value = book.id;
+            document.getElementById('edit-book-title').value = book.title;
+            selectedEditCoverBase64 = null; // Reset to null, will only update if user picks new one
+            
+            if (book.cover) {
+                editCoverPreview.innerHTML = `<img src="${book.cover}">`;
+            } else {
+                editCoverPreview.innerHTML = '<p>Mevcut görsel korunacak</p>';
+            }
+
+            editBookModal.style.display = 'flex';
+            setTimeout(() => editBookModal.classList.add('open'), 10);
+        };
+    }
+
+    if (editBookForm) {
+        editBookForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('edit-book-title').value;
+            const bookId = document.getElementById('edit-book-id').value;
+            const user = auth.currentUser;
+
+            try {
+                const updateData = {
+                    title: title,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                if (selectedEditCoverBase64) {
+                    updateData.cover = selectedEditCoverBase64;
+                }
+
+                await db.collection('user_books').doc(bookId).update(updateData);
+                
+                closeModal('edit-book-modal');
+                closeModal('chapters-overlay');
+                loadBooks(user.uid);
+                alert('Kitap başarıyla güncellendi.');
+            } catch (err) {
+                alert('Güncelleme hatası: ' + err.message);
+            }
+        };
+    }
 
     // --- Publish Logic ---
     window.openPublishModal = async (bookId) => {

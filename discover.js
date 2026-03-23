@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'discover-card';
                     card.style.animationDelay = `${idx * 0.1}s`;
-                    card.onclick = () => alert('Okuma modu çok yakında eklenecek!');
+                    card.onclick = () => window.incrementViewsAndRedirect(book.id);
 
                     card.innerHTML = `
                         <div class="discover-card-inner">
@@ -58,7 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="discover-info">
                                 <span class="discover-category">${book.category || 'Roman'}</span>
                                 <h3 class="discover-title">${book.title}</h3>
-                                <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                                <div class="discover-footer">
+                                    <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                                    <div class="view-count-badge">👁 ${book.views || 0}</div>
+                                </div>
                             </div>
                         </div>
                     `;

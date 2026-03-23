@@ -406,6 +406,29 @@ body {
     padding: 40px 20px 20px;
     background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
     z-index: 2;
+    transition: 0.3s;
+}
+
+.discover-card:hover .discover-info {
+    padding-bottom: 30px;
+    background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+}
+
+.discover-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.view-count-badge {
+    color: var(--accent-gold);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.8;
 }
 
 .discover-category {

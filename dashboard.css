@@ -314,6 +314,32 @@ body {
 .overlay-header h2 { font-family: 'Playfair Display', serif; font-size: 32px; }
 .overlay-header p { color: var(--dash-gold); font-size: 14px; margin-top: 5px; }
 
+.overlay-title-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.edit-btn-small {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--dash-gold);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.edit-btn-small:hover {
+    background: var(--dash-gold);
+    color: #000;
+    transform: translateY(-2px);
+}
+
 .overlay-chapters-list {
     max-height: 400px;
     overflow-y: auto;

@@ -194,6 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Reading Mode & View Count Logic ---
+    window.incrementViewsAndRedirect = async (bookId) => {
+        try {
+            // Increment view count in Firestore
+            await db.collection('user_books').doc(bookId).update({
+                views: firebase.firestore.FieldValue.increment(1)
+            });
+        } catch (err) {
+            console.error("View increment error:", err);
+        }
+        // Redirect regardless of increment success
+        window.location.href = `read.html?bookId=${bookId}`;
+    };
+
     // --- Load Featured Books (Index) ---
     const loadFeaturedBooks = async () => {
         const discoverGrid = document.getElementById('featured-grid');
@@ -225,9 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = 'discover-card fade-up';
                 card.style.animationDelay = `${index * 0.1}s`;
-                card.onclick = () => {
-                    alert('Okuma modu çok yakında eklenecek!'); 
-                };
+                card.onclick = () => window.incrementViewsAndRedirect(book.id);
 
                 card.innerHTML = `
                     <div class="discover-card-inner">
@@ -235,7 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="discover-info">
                             <span class="discover-category">${book.category || 'Roman'}</span>
                             <h3 class="discover-title">${book.title}</h3>
-                            <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                            <div class="discover-footer">
+                                <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                                <div class="view-count-badge">👁 ${book.views || 0}</div>
+                            </div>
                         </div>
                     </div>
                 `;
