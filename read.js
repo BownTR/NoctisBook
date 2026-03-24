@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentBook.chapters && currentBook.chapters.length > 0) {
                 displayChapter(0);
             } else {
-                displayChapterTitle.textContent = "Henüz Bölüm Yok";
-                displayChapterContent.innerHTML = "<p>Bu yazar henüz bir bölüm yayınlamadı.</p>";
+                displayChapterTitle.textContent = currentLang === 'tr' ? "Henüz Bölüm Yok" : "No Chapters Yet";
+                displayChapterContent.innerHTML = `<p>${currentLang === 'tr' ? "Bu yazar henüz bir bölüm yayınlamadı." : "This author hasn't published any chapters yet."}</p>`;
             }
 
             // Hide loader
@@ -56,11 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderBookMeta = () => {
         bookTitleEl.textContent = currentBook.title;
-        bookAuthorEl.textContent = `✍ ${currentBook.authorName || 'Anonim Yazar'}`;
+        bookAuthorEl.textContent = `✍ ${currentBook.authorName || (translations[currentLang].nav_guest)}`;
         bookCoverEl.src = currentBook.cover || 'kapak.png';
-        bookCategoryEl.textContent = currentBook.category || 'Roman';
+        const catName = currentBook.category || 'Roman';
+        bookCategoryEl.textContent = (translations[currentLang].cat_map[catName]) || catName;
         bookViewsEl.textContent = currentBook.views || 0;
-        document.title = `${currentBook.title} | Sonsuz Kitap`;
+        document.title = `${currentBook.title} | Noctis ${currentLang === 'tr' ? 'Kitap Dünyası' : 'Book World'}`;
     };
 
     const renderChapterList = () => {
@@ -106,4 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadBookData();
+
+    window.addEventListener('langChanged', (e) => {
+        if (currentBook) renderBookMeta();
+    });
 });

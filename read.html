@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Okuma Modu | Sonsuz Kitap</title>
+    <title>Okuma Modu | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <script src="translations.js"></script>
     <style>
         :root {
             --read-bg: #0a0908;
@@ -209,21 +210,27 @@
 
     <div id="loader" class="read-loader">
         <div class="loader-spinner"></div>
-        <p style="margin-top: 20px; color: var(--gold);">Kitap Raftan İniyor...</p>
+        <p style="margin-top: 20px; color: var(--gold);" data-i18n="book_from_shelf">Kitap Raftan İniyor...</p>
     </div>
 
     <div class="read-container">
         <!-- Sidebar -->
         <aside class="read-sidebar">
-            <a href="index.html" class="read-back">← Kütüphaneye Dön</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <a href="index.html" class="read-back" data-i18n="btn_back_library">← Kütüphaneye Dön</a>
+                <div class="lang-switcher">
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+            </div>
             
             <div class="read-book-cover">
                 <img id="book-cover" src="" alt="Kitap Kapağı">
             </div>
 
             <div class="read-book-meta">
-                <h1 id="book-title">Yükleniyor...</h1>
-                <p id="book-author">✍ Yazar Adı</p>
+                <h1 id="book-title" data-i18n="loading">Yükleniyor...</h1>
+                <p id="book-author" data-i18n="author_name">✍ Yazar Adı</p>
                 <div style="margin-top: 15px; display: flex; gap: 10px;">
                     <span id="book-category" style="background: rgba(212,175,55,0.1); color: var(--gold); padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">Roman</span>
                     <span style="background: rgba(255,255,255,0.05); color: #fff; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">👁 <span id="book-views">0</span></span>
@@ -239,7 +246,7 @@
         <main class="read-content-area">
             <article class="paper-view">
                 <h2 class="chapter-title-display" id="display-chapter-title">Bölüm Başlığı</h2>
-                <div class="chapter-text-content" id="display-chapter-content">
+                <div class="chapter-text-content" id="display-chapter-content" data-i18n="writing_soon">
                     Burası yakında kelimelerle dolacak...
                 </div>
             </article>

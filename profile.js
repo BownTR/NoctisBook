@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logoutBtn.onclick = (e) => {
         e.preventDefault();
-        auth.signOut().then(() => window.location.href = 'index.html');
+        if (confirm(translations[currentLang].logout_confirm)) {
+            auth.signOut().then(() => window.location.href = 'index.html');
+        }
     };
 });

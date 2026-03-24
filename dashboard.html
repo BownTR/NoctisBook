@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kütüphanem | Sonsuz Kitap</title>
+    <title>Kütüphanem | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <script src="translations.js"></script>
 </head>
-<body>
+<body data-page-title="nav_library">
     <div class="grain-overlay"></div>
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <a href="index.html" class="logo">Noctis<span>Kitap</span></a>
             <div class="nav-links">
-                <a href="index.html" class="nav-item">🏠 <span>Ana Sayfa</span></a>
-                <a href="discover.html" class="nav-item">🌍 <span>Keşfet</span></a>
-                <a href="dashboard.html" class="nav-item active">📚 <span>Kütüphanem</span></a>
+                <div class="lang-switcher">
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="index.html" class="nav-item" data-i18n="nav_home">🏠 <span>Ana Sayfa</span></a>
+                <a href="discover.html" class="nav-item" data-i18n="nav_discover">🌍 <span>Keşfet</span></a>
+                <a href="dashboard.html" class="nav-item active" data-i18n="nav_library">📚 <span>Kütüphanem</span></a>
                 <div class="user-profile-nav">
                     <button class="profile-trigger" id="profile-trigger">👤</button>
                     <div class="nav-dropdown" id="profile-dropdown">
-                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
-                        <a href="profile.html" class="dropdown-link">👤 Profilim</a>
-                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                        <div class="dropdown-user-info" id="user-info-name" data-i18n="nav_guest">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link" data-i18n="nav_profile">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn" data-i18n="nav_logout">🚪 Çıkış Yap</a>
                     </div>
                 </div>
             </div>
@@ -32,8 +37,8 @@
 
     <main class="dashboard-container">
         <header class="dashboard-header">
-            <h1 class="fade-up">Hoş Geldin, <span id="user-name">Yazar</span></h1>
-            <p class="fade-up" style="animation-delay: 0.1s;">Yazın yolculuğun burada saklı. Harf harf inşa ettiğin evrenin özeti.</p>
+            <h1 class="fade-up"><span data-i18n="welcome">Hoş Geldin,</span> <span id="user-name">Yazar</span></h1>
+            <p class="fade-up" style="animation-delay: 0.1s;" data-i18n="dashboard_subtitle">Yazın yolculuğun burada saklı. Harf harf inşa ettiğin evrenin özeti.</p>
         </header>
 
         <!-- Stats Overview -->
@@ -41,14 +46,14 @@
             <div class="stat-card">
                 <div class="stat-icon">📚</div>
                 <div class="stat-info">
-                    <span class="stat-label">Toplam Kitap</span>
+                    <span class="stat-label" data-i18n="total_books">Toplam Kitap</span>
                     <h2 id="total-books">0</h2>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">📄</div>
                 <div class="stat-info">
-                    <span class="stat-label">Toplam Bölüm</span>
+                    <span class="stat-label" data-i18n="total_chapters">Toplam Bölüm</span>
                     <h2 id="total-chapters">0</h2>
                 </div>
             </div>
@@ -56,12 +61,12 @@
 
         <section class="library-section fade-up" style="animation-delay: 0.3s;">
             <div class="section-header">
-                <h2>Kitaplarım</h2>
-                <button id="open-create-book" class="add-new-btn">+ Yeni Kitap Oluştur</button>
+                <h2 data-i18n="my_books">Kitaplarım</h2>
+                <button id="open-create-book" class="add-new-btn" data-i18n="btn_new_book">+ Yeni Kitap Oluştur</button>
             </div>
             <div id="books-grid" class="books-grid">
                 <!-- Books will be loaded here -->
-                <div class="loading-spinner">Kitaplarınız yükleniyor...</div>
+                <div class="loading-spinner" data-i18n="loading_books">Kitaplarınız yükleniyor...</div>
             </div>
         </section>
     </main>
@@ -70,23 +75,23 @@
     <div id="create-book-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('create-book-modal')">&times;</button>
-            <h2 class="modal-title">Yeni Kitap Oluştur</h2>
+            <h2 class="modal-title" data-i18n="modal_new_book">Yeni Kitap Oluştur</h2>
             <form id="create-book-form" class="auth-form active">
                 <div class="input-group">
-                    <label>Kitap İsmi (Zorunlu)</label>
-                    <input type="text" id="book-title" placeholder="Kitabınızın adı ne olsun?" required>
+                    <label data-i18n="book_name_req">Kitap İsmi (Zorunlu)</label>
+                    <input type="text" id="book-title" placeholder="Kitabınızın adı ne olsun?" data-i18n="book_name_req" required>
                 </div>
                 <div class="input-group">
-                    <label>Kitap Kapağı (Önerilen: 400x600 px)</label>
+                    <label data-i18n="book_cover_opt">Kitap Kapağı (Önerilen: 400x600 px)</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="book-cover-input" accept="image/*" style="display: none;">
-                        <button type="button" class="btn-outline full-width" onclick="document.getElementById('book-cover-input').click()">📁 Görsel Seç</button>
+                        <button type="button" class="btn-outline full-width" onclick="document.getElementById('book-cover-input').click()" data-i18n="btn_select_image">📁 Görsel Seç</button>
                     </div>
                     <div id="cover-preview" class="cover-preview-box">
-                        <p>Henüz görsel seçilmedi</p>
+                        <p data-i18n="no_image_selected">Henüz görsel seçilmedi</p>
                     </div>
                 </div>
-                <button type="submit" class="btn-hero full-width">Kitabı Oluştur</button>
+                <button type="submit" class="btn-hero full-width" data-i18n="btn_create">Kitabı Oluştur</button>
             </form>
         </div>
     </div>
@@ -115,25 +120,25 @@
     <div id="edit-book-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('edit-book-modal')">&times;</button>
-            <h2 class="modal-title">Kitabı Düzenle</h2>
+            <h2 class="modal-title" data-i18n="modal_edit_book">Kitabı Düzenle</h2>
             <form id="edit-book-form" class="auth-form active">
                 <input type="hidden" id="edit-book-id">
                 <div class="input-group">
-                    <label>Kitap İsmi (Zorunlu)</label>
-                    <input type="text" id="edit-book-title" placeholder="Kitabınızın adı ne olsun?" required>
+                    <label data-i18n="book_name_req">Kitap İsmi (Zorunlu)</label>
+                    <input type="text" id="edit-book-title" placeholder="Kitabınızın adı ne olsun?" data-i18n="book_name_req" required>
                 </div>
                 <div class="input-group">
-                    <label>Kitap Kapağı (Önerilen: 400x600 px)</label>
+                    <label data-i18n="book_cover_opt">Kitap Kapağı (Önerilen: 400x600 px)</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="edit-book-cover-input" accept="image/*" style="display: none;">
-                        <button type="button" class="btn-outline full-width" onclick="document.getElementById('edit-book-cover-input').click()">📁 Görsel Değiştir</button>
+                        <button type="button" class="btn-outline full-width" onclick="document.getElementById('edit-book-cover-input').click()" data-i18n="btn_select_image">📁 Görsel Değiştir</button>
                     </div>
                     <div id="edit-cover-preview" class="cover-preview-box">
-                        <p>Mevcut görsel korunacak</p>
+                        <p data-i18n="no_image_selected">Mevcut görsel korunacak</p>
                     </div>
                 </div>
-                <button type="submit" class="btn-hero full-width">Değişiklikleri Kaydet</button>
-                <button type="button" id="delete-book-btn" class="btn-delete full-width">🗑 Kitabı Sil</button>
+                <button type="submit" class="btn-hero full-width" data-i18n="btn_save_changes">Değişiklikleri Kaydet</button>
+                <button type="button" id="delete-book-btn" class="btn-delete full-width" data-i18n="btn_delete_book">🗑 Kitabı Sil</button>
             </form>
         </div>
     </div>
@@ -142,26 +147,26 @@
     <div id="publish-book-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('publish-book-modal')">&times;</button>
-            <h2 class="modal-title" style="font-size: 28px; margin-bottom: 20px;">Kitabını Yayınla</h2>
-            <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px; font-size: 15px;">Kitabını ana sayfada yüzlerce okurun keşfine sunmak üzeresin. Kitabının içeriğine uygun bir kategori seç.</p>
+            <h2 class="modal-title" style="font-size: 28px; margin-bottom: 20px;" data-i18n="modal_publish_title">Kitabını Yayınla</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 25px; font-size: 15px;" data-i18n="modal_publish_desc">Kitabını ana sayfada yüzlerce okurun keşfine sunmak üzeresin. Kitabının içeriğine uygun bir kategori seç.</p>
             <form id="publish-book-form" class="auth-form active">
                 <input type="hidden" id="publish-book-id">
                 <div class="input-group">
-                    <label>Kategori (Zorunlu)</label>
-                    <select id="book-category" required>
-                        <option value="" disabled selected>Bir kategori seç...</option>
-                        <option value="Romantik">Romantik</option>
-                        <option value="Dram">Dram</option>
-                        <option value="Bilim Kurgu">Bilim Kurgu</option>
-                        <option value="Fantastik">Fantastik</option>
-                        <option value="Gizem / Gerilim">Gizem / Gerilim</option>
-                        <option value="Aksiyon / Macera">Aksiyon / Macera</option>
-                        <option value="Kişisel Gelişim">Kişisel Gelişim</option>
-                        <option value="Korku">Korku</option>
-                        <option value="Şiir">Şiir</option>
+                    <label data-i18n="category_req">Kategori (Zorunlu)</label>
+                    <select id="book-category" data-i18n="select_category" required>
+                        <option value="" disabled selected data-i18n="select_category">Bir kategori seç...</option>
+                        <option value="Romantik" data-i18n="cat_romance">Romantik</option>
+                        <option value="Dram" data-i18n="cat_drama">Dram</option>
+                        <option value="Bilim Kurgu" data-i18n="cat_sci_fi">Bilim Kurgu</option>
+                        <option value="Fantastik" data-i18n="cat_fantasy">Fantastik</option>
+                        <option value="Gizem / Gerilim" data-i18n="cat_mystery">Gizem / Gerilim</option>
+                        <option value="Aksiyon / Macera" data-i18n="cat_action">Aksiyon / Macera</option>
+                        <option value="Kişisel Gelişim" data-i18n="cat_personal">Kişisel Gelişim</option>
+                        <option value="Korku" data-i18n="cat_horror">Korku</option>
+                        <option value="Şiir" data-i18n="cat_poetry">Şiir</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-hero full-width" style="margin-top: 10px;">Şimdi Yayınla 🌍</button>
+                <button type="submit" class="btn-hero full-width" style="margin-top: 10px;" data-i18n="btn_publish_now">Şimdi Yayınla 🌍</button>
             </form>
         </div>
     </div>

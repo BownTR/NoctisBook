@@ -64,9 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
             return;
         }
-        userNameEl.textContent = user.displayName ? user.displayName.split(' ')[0] : 'Yazar';
+        userNameEl.textContent = user.displayName ? user.displayName.split(' ')[0] : (translations[currentLang].nav_guest);
         const userInfoName = document.getElementById('user-info-name');
-        if (userInfoName) userInfoName.textContent = user.displayName || 'Yazar';
+        if (userInfoName) userInfoName.textContent = user.displayName || (translations[currentLang].nav_guest);
         
         handleDropdownLogic();
         loadBooks(user.uid);
@@ -94,15 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateGlobalStats();
         } catch (err) {
             console.error('Yükleme hatası detayı:', err);
-            alert('Veriler çekilirken bir sorun oluştu: ' + err.message);
-            booksGrid.innerHTML = '<div class="loading-spinner">Bilinmeyen bir hata oluştu. Lütfen sayfayı yenileyin.</div>';
+            alert(translations[currentLang].id_not_found + ': ' + err.message);
+            booksGrid.innerHTML = `<div class="loading-spinner">${translations[currentLang].id_not_found}</div>`;
         }
     };
 
     const renderBooks = () => {
         booksGrid.innerHTML = '';
         if (userBooks.length === 0) {
-            booksGrid.innerHTML = '<div class="loading-spinner">Henüz kitap oluşturmadınız.</div>';
+            booksGrid.innerHTML = `<div class="loading-spinner">${translations[currentLang].loading_books}</div>`;
             return;
         }
 
@@ -115,15 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="book-cover-area">
                     <div class="book-spine-effect"></div>
                     <img src="${coverImg}" alt="${book.title}">
-                    ${book.published ? '<div class="published-badge">Yayınlandı</div>' : ''}
+                    ${book.published ? `<div class="published-badge">${translations[currentLang].published_badge}</div>` : ''}
                 </div>
                 <div class="book-info-minimal">
                     <h3>${book.title}</h3>
-                    <span>${book.chapters ? book.chapters.length : 0} Bölüm</span>
+                    <span>${book.chapters ? book.chapters.length : 0} ${translations[currentLang].chapters}</span>
                 </div>
                 <div class="book-actions">
                     <button class="btn-publish" onclick="event.stopPropagation(); window.openPublishModal('${book.id}')">
-                        ${book.published ? 'Yayından Kaldır' : 'Yayınla 🌍'}
+                        ${book.published ? translations[currentLang].unpublish_btn : translations[currentLang].publish_btn}
                     </button>
                 </div>
             `;
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentEditingBookId = book.id;
         overlayBookTitle.textContent = book.title;
         const count = book.chapters ? book.chapters.length : 0;
-        overlayBookStats.textContent = `${count} Bölüm Yazıldı`;
+        overlayBookStats.textContent = `${count} ${translations[currentLang].chapters_written}`;
         
         overlayChaptersList.innerHTML = '';
         if (count > 0) {
@@ -157,17 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wordCount = ch.content.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length;
                 item.innerHTML = `
                     <span>${idx + 1}. ${ch.title}</span>
-                    <span class="meta">${wordCount} Kelime</span>
+                    <span class="meta">${wordCount} ${translations[currentLang].word_count}</span>
                 `;
                 item.onclick = () => {
                     window.location.href = `editor.html?bookId=${book.id}&chapterId=${ch.id}`;
                 };
                 overlayChaptersList.appendChild(item);
             });
-            startWritingBtn.textContent = 'Son Bölümden Devam Et';
+            startWritingBtn.textContent = translations[currentLang].last_chapter_continue;
         } else {
-            overlayChaptersList.innerHTML = '<div class="loading-spinner">Bölüm bulunamadı.</div>';
-            startWritingBtn.textContent = 'Yazmaya Başla (İlk Bölüm)';
+            overlayChaptersList.innerHTML = `<div class="loading-spinner">${translations[currentLang].no_chapters_found}</div>`;
+            startWritingBtn.textContent = translations[currentLang].start_first_chapter;
         }
 
         startWritingBtn.onclick = () => {
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeModal('edit-book-modal');
                 closeModal('chapters-overlay');
                 loadBooks(user.uid);
-                alert('Kitap başarıyla güncellendi.');
+                alert(translations[currentLang].update_success);
             } catch (err) {
                 alert('Güncelleme hatası: ' + err.message);
             }
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const book = userBooks.find(b => b.id === bookId);
             if (!book) return;
 
-            const confirmText = `"${book.title}" başlıklı kitabınızı ve tüm bölümlerini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`;
+            const confirmText = `"${book.title}" ${translations[currentLang].delete_book_confirm}`;
             
             if (confirm(confirmText)) {
                 try {
@@ -336,9 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     closeModal('edit-book-modal');
                     closeModal('chapters-overlay');
                     loadBooks(auth.currentUser.uid);
-                    alert('Kitap başarıyla silindi.');
+                    alert(translations[currentLang].delete_success);
                 } catch (err) {
-                    alert('Silme hatası: ' + err.message);
+                    alert('Hata: ' + err.message);
                 }
             }
         };
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!book) return;
 
         if (book.published) {
-            if (confirm('Kitabınızı yayından kaldırmak istediğinize emin misiniz? Ana sayfada görünmeyecek.')) {
+            if (confirm(translations[currentLang].unpublish_confirm)) {
                 try {
                     await db.collection('user_books').doc(bookId).update({
                         published: false,
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     authorName: user.displayName || 'Anonim Yazar',
                     publishedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                alert('Kitabınız başarıyla ana sayfaya ve keşfet sekmesine uçtu! 🚀');
+                alert(translations[currentLang].publish_success);
                 closeModal('publish-book-modal');
                 publishBookForm.reset();
                 loadBooks(user.uid);
@@ -399,4 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         auth.signOut().then(() => window.location.href = 'index.html');
     };
+
+    // Re-render when language changes
+    window.addEventListener('langChanged', (e) => {
+        userNameEl.textContent = auth.currentUser?.displayName ? auth.currentUser.displayName.split(' ')[0] : (translations[e.detail.lang].nav_guest);
+        const userInfoName = document.getElementById('user-info-name');
+        if (userInfoName) userInfoName.textContent = auth.currentUser?.displayName || (translations[e.detail.lang].nav_guest);
+        renderBooks();
+        calculateGlobalStats();
+    });
 });

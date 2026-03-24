@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keşfet | Sonsuz Kitap</title>
+    <title>Keşfet | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <script src="translations.js"></script>
 </head>
-<body>
+<body data-page-title="nav_discover">
     <div class="grain-overlay"></div>
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <a href="index.html" class="logo">Noctis<span>Kitap</span></a>
             <div class="nav-links" id="nav-actions">
-                <a href="index.html" class="nav-item">🏠 <span>Ana Sayfa</span></a>
-                <a href="discover.html" class="nav-item active">🌍 <span>Keşfet</span></a>
+                <div class="lang-switcher">
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="index.html" class="nav-item" data-i18n="nav_home">🏠 <span>Ana Sayfa</span></a>
+                <a href="discover.html" class="nav-item active" data-i18n="nav_discover">🌍 <span>Keşfet</span></a>
                 
                 <!-- Guest View -->
-                <a href="#" class="nav-item" id="login-open">Giriş Yap / Kayıt Ol</a>
+                <a href="#" class="nav-item" id="login-open" data-i18n="nav_login_register">Giriş Yap / Kayıt Ol</a>
                 
                 <!-- Logged-in View -->
                 <div id="logged-in-menu" style="display: none; align-items: center; gap: 25px;">
-                    <a href="dashboard.html" class="nav-item" id="nav-library-link">📚 <span>Kütüphanem</span></a>
+                    <a href="dashboard.html" class="nav-item" id="nav-library-link" data-i18n="nav_library">📚 <span>Kütüphanem</span></a>
                     <div class="user-profile-nav">
                         <button class="profile-trigger" id="profile-trigger">👤</button>
                         <div class="nav-dropdown" id="profile-dropdown">
-                            <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
-                            <a href="profile.html" class="dropdown-link">👤 Profilim</a>
-                            <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                            <div class="dropdown-user-info" id="user-info-name" data-i18n="nav_guest">Misafir Yazar</div>
+                            <a href="profile.html" class="dropdown-link" data-i18n="nav_profile">👤 Profilim</a>
+                            <a href="#" class="dropdown-link logout" id="logout-btn" data-i18n="nav_logout">🚪 Çıkış Yap</a>
                         </div>
                     </div>
                 </div>
@@ -38,13 +43,13 @@
 
     <main class="discover-page-container">
         <header class="discover-header">
-            <h1 class="fade-up">Keşfet</h1>
-            <p class="fade-up" style="animation-delay: 0.1s;">Diğer okurların kaleminden çıkan eşsiz mirasına göz atın ve yeni evrenlere yelken açın.</p>
+            <h1 class="fade-up" data-i18n="discover_title">Keşfet</h1>
+            <p class="fade-up" style="animation-delay: 0.1s;" data-i18n="discover_subtitle">Diğer okurların kaleminden çıkan eşsiz mirasına göz atın ve yeni evrenlere yelken açın.</p>
         </header>
 
         <section class="discover-section fade-up">
             <div id="all-discover-grid">
-                <div class="loading-spinner" style="text-align: center; color: var(--accent-gold); padding: 50px;">Eserler yükleniyor...</div>
+                <div class="loading-spinner" style="text-align: center; color: var(--accent-gold); padding: 50px;" data-i18n="loading_all">Eserler yükleniyor...</div>
             </div>
         </section>
     </main>
@@ -54,36 +59,36 @@
         <div class="modal-content">
             <button class="modal-close">&times;</button>
             <div class="auth-tabs">
-                <button class="tab-btn active" data-tab="login">Giriş Yap</button>
-                <button class="tab-btn" data-tab="register">Kayıt Ol</button>
+                <button class="tab-btn active" data-tab="login" data-i18n="login">Giriş Yap</button>
+                <button class="tab-btn" data-tab="register" data-i18n="register">Kayıt Ol</button>
             </div>
             
             <form id="login-form" class="auth-form active">
                 <div class="input-group">
-                    <label>E-posta</label>
-                    <input type="email" placeholder="ornek@mail.com" required>
+                    <label data-i18n="email">E-posta</label>
+                    <input type="email" placeholder="ornek@mail.com" data-i18n="email" required>
                 </div>
                 <div class="input-group">
-                    <label>Şifre</label>
-                    <input type="password" placeholder="••••••••" required>
+                    <label data-i18n="password">Şifre</label>
+                    <input type="password" placeholder="••••••••" data-i18n="password" required>
                 </div>
-                <button type="submit" class="btn-hero full-width">Giriş Yap</button>
+                <button type="submit" class="btn-hero full-width" data-i18n="login">Giriş Yap</button>
             </form>
 
             <form id="register-form" class="auth-form">
                 <div class="input-group">
-                    <label>Ad Soyad</label>
-                    <input type="text" placeholder="Adınız Soyadınız" required>
+                    <label data-i18n="full_name">Ad Soyad</label>
+                    <input type="text" placeholder="Adınız Soyadınız" data-i18n="full_name" required>
                 </div>
                 <div class="input-group">
-                    <label>E-posta</label>
-                    <input type="email" placeholder="ornek@mail.com" required>
+                    <label data-i18n="email">E-posta</label>
+                    <input type="email" placeholder="ornek@mail.com" data-i18n="email" required>
                 </div>
                 <div class="input-group">
-                    <label>Şifre</label>
-                    <input type="password" placeholder="En az 6 karakter" required>
+                    <label data-i18n="password">Şifre</label>
+                    <input type="password" placeholder="En az 6 karakter" data-i18n="password" required>
                 </div>
-                <button type="submit" class="btn-hero full-width">Hesap Oluştur</button>
+                <button type="submit" class="btn-hero full-width" data-i18n="create_account">Hesap Oluştur</button>
             </form>
         </div>
     </div>

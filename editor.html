@@ -4,28 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonsuz Kitap</title>
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="style.css">
+    <script src="translations.js"></script>
 </head>
 
-<body>
+<body data-page-title="btn_start_writing">
     <div class="grain-overlay"></div>
     <div class="save-notification" id="save-notification">Kaydedildi...</div>
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <a href="index.html" class="logo">Noctis<span>Kitap</span></a>
             <div class="nav-links" id="nav-actions">
-                <a href="index.html" class="nav-item">🏠 <span>Ana Sayfa</span></a>
-                <a href="discover.html" class="nav-item">🌍 <span>Keşfet</span></a>
-                <a href="dashboard.html" class="nav-item">📚 <span>Kütüphanem</span></a>
+                <div class="lang-switcher">
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="index.html" class="nav-item" data-i18n="nav_home">🏠 <span>Ana Sayfa</span></a>
+                <a href="discover.html" class="nav-item" data-i18n="nav_discover">🌍 <span>Keşfet</span></a>
+                <a href="dashboard.html" class="nav-item" data-i18n="nav_library">📚 <span>Kütüphanem</span></a>
                 <div class="user-profile-nav">
                     <button class="profile-trigger" id="profile-trigger">👤</button>
                     <div class="nav-dropdown" id="profile-dropdown">
-                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
-                        <a href="profile.html" class="dropdown-link">👤 Profilim</a>
-                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                        <div class="dropdown-user-info" id="user-info-name" data-i18n="nav_guest">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link" data-i18n="nav_profile">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn" data-i18n="nav_logout">🚪 Çıkış Yap</a>
                     </div>
                 </div>
             </div>
@@ -38,33 +42,33 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Bölümler</h2>
+                <h2 data-i18n="chapters">Bölümler</h2>
                 <button id="add-chapter-btn">+</button>
             </div>
             <ul id="chapters-list"></ul>
 
             <div class="stats-panel">
                 <div class="stat-row">
-                    <span class="stat-label">Kelime</span>
+                    <span class="stat-label" data-i18n="word_count">Kelime</span>
                     <span id="stat-words" class="stat-value">0</span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">Karakter</span>
+                    <span class="stat-label" data-i18n="char_count">Karakter</span>
                     <span id="stat-chars" class="stat-value">0</span>
                 </div>
                 <div class="stat-row">
-                    <span class="stat-label">Sayfa</span>
+                    <span class="stat-label" data-i18n="page_count">Sayfa</span>
                     <span id="stat-pages" class="stat-value">0</span>
                 </div>
             </div>
 
             <div style="padding: 20px 30px;">
                 <button id="sync-folder-btn"
-                    style="width: 100%; padding: 12px; border-radius: 8px; background: #d4af37; color: #000; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Poppins', sans-serif;">
+                    style="width: 100%; padding: 12px; border-radius: 8px; background: #d4af37; color: #000; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Poppins', sans-serif;" data-i18n="btn_sync_pc">
                     <span style="font-size: 1.2em;">📁</span> Bilgisayara Eşitle
                 </button>
                 <div id="sync-status"
-                    style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center;">Klasör
+                    style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 8px; text-align: center;" data-i18n="sync_not_selected">Klasör
                     Seçilmedi</div>
             </div>
         </aside>
@@ -73,9 +77,9 @@
         <!-- Main Window -->
         <main class="main-content">
             <div class="top-bar">
-                <button id="prev-btn" class="nav-btn">Önceki</button>
+                <button id="prev-btn" class="nav-btn" data-i18n="btn_prev">Önceki</button>
                 <div id="page-label">Sayfa 1 - 2</div>
-                <button id="next-btn" class="nav-btn">Sonraki</button>
+                <button id="next-btn" class="nav-btn" data-i18n="btn_next">Sonraki</button>
             </div>
 
             <div class="book-container">

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilim | Sonsuz Kitap</title>
+    <title>Profilim | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <script src="translations.js"></script>
     <style>
         .profile-card {
             background: var(--dash-card);
@@ -28,22 +29,26 @@
         }
     </style>
 </head>
-<body>
+<body data-page-title="nav_profile">
     <div class="grain-overlay"></div>
 
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">Sonsuz<span>Kitap</span></a>
+            <a href="index.html" class="logo">Noctis<span>Kitap</span></a>
             <div class="nav-links">
-                <a href="index.html" class="nav-item">🏠 <span>Ana Sayfa</span></a>
-                <a href="discover.html" class="nav-item">🌍 <span>Keşfet</span></a>
-                <a href="dashboard.html" class="nav-item">📚 <span>Kütüphanem</span></a>
+                <div class="lang-switcher">
+                    <button class="lang-btn" data-lang="tr">TR</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="index.html" class="nav-item" data-i18n="nav_home">🏠 <span>Ana Sayfa</span></a>
+                <a href="discover.html" class="nav-item" data-i18n="nav_discover">🌍 <span>Keşfet</span></a>
+                <a href="dashboard.html" class="nav-item" data-i18n="nav_library">📚 <span>Kütüphanem</span></a>
                 <div class="user-profile-nav">
                     <button class="profile-trigger" id="profile-trigger">👤</button>
                     <div class="nav-dropdown" id="profile-dropdown">
-                        <div class="dropdown-user-info" id="user-info-name">Misafir Yazar</div>
-                        <a href="profile.html" class="dropdown-link active">👤 Profilim</a>
-                        <a href="#" class="dropdown-link logout" id="logout-btn">🚪 Çıkış Yap</a>
+                        <div class="dropdown-user-info" id="user-info-name" data-i18n="nav_guest">Misafir Yazar</div>
+                        <a href="profile.html" class="dropdown-link active" data-i18n="nav_profile">👤 Profilim</a>
+                        <a href="#" class="dropdown-link logout" id="logout-btn" data-i18n="nav_logout">🚪 Çıkış Yap</a>
                     </div>
                 </div>
             </div>
@@ -52,8 +57,8 @@
 
     <main class="dashboard-container">
         <header class="dashboard-header" style="text-align: center;">
-            <h1 class="fade-up">Profil Ayarları</h1>
-            <p class="fade-up" style="animation-delay: 0.1s;">Yazarlık kimliğini buradan güncelleyebilirsin.</p>
+            <h1 class="fade-up" data-i18n="profile_settings">Profil Ayarları</h1>
+            <p class="fade-up" style="animation-delay: 0.1s;" data-i18n="profile_subtitle">Yazarlık kimliğini buradan güncelleyebilirsin.</p>
         </header>
 
         <section class="profile-card fade-up" style="animation-delay: 0.2s;">
@@ -61,17 +66,17 @@
             
             <form id="profile-form" class="auth-form active">
                 <div class="input-group">
-                    <label>Görünen Adın</label>
-                    <input type="text" id="display-name-input" placeholder="Adınız Soyadınız" required>
+                    <label data-i18n="display_name">Görünen Adın</label>
+                    <input type="text" id="display-name-input" placeholder="Adınız Soyadınız" data-i18n="display_name" required>
                 </div>
                 <div class="input-group">
-                    <label>E-posta Adresi (Değiştirilemez)</label>
+                    <label data-i18n="email_address_no_change">E-posta Adresi (Değiştirilemez)</label>
                     <input type="email" id="email-display" disabled style="opacity: 0.5;">
                 </div>
-                <button type="submit" class="btn-hero full-width">Bilgileri Güncelle</button>
+                <button type="submit" class="btn-hero full-width" data-i18n="btn_update_info">Bilgileri Güncelle</button>
             </form>
             
-            <div id="save-msg" style="margin-top: 20px; text-align: center; font-size: 14px; color: var(--dash-gold); display: none;">
+            <div id="save-msg" style="margin-top: 20px; text-align: center; font-size: 14px; color: var(--dash-gold); display: none;" data-i18n="saved_success">
                 Değişiklikler başarıyla kaydedildi!
             </div>
         </section>

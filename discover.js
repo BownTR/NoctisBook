@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (books.length === 0) {
-                grid.innerHTML = '<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">Henüz yayınlanmış bir eser bulunmuyor. Kendi eserinizi yayınlayarak bir başlangıç yapın!</div>';
+                const noBooksMsg = currentLang === 'tr' ? 'Henüz yayınlanmış bir eser bulunmuyor. Kendi eserinizi yayınlayarak bir başlangıç yapın!' : 'No published works yet. Start by publishing your own!';
+                grid.innerHTML = `<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">${noBooksMsg}</div>`;
                 return;
             }
 
@@ -38,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 categorySection.innerHTML = `
                     <div class="category-header">
-                        <h3>${catName}</h3>
+                        <h3>${(translations[currentLang].cat_map[catName]) || catName}</h3>
                         <div class="category-line"></div>
                     </div>
                     <div class="discover-grid"></div>
@@ -56,10 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="discover-card-inner">
                             <img src="${coverImg}" class="discover-cover" alt="Kapak">
                             <div class="discover-info">
-                                <span class="discover-category">${book.category || 'Roman'}</span>
+                                <span class="discover-category">${(translations[currentLang].cat_map[book.category]) || (book.category || 'Roman')}</span>
                                 <h3 class="discover-title">${book.title}</h3>
                                 <div class="discover-footer">
-                                    <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                                    <p class="discover-author">✍ ${book.authorName || (translations[currentLang].nav_guest)}</p>
                                     <div class="view-count-badge">👁 ${book.views || 0}</div>
                                 </div>
                             </div>
@@ -82,4 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Firebase in landing.js might take a ms to be ready if on slow networks, but since it's synchronous up to initialization, this is fine
     loadAllPublishedBooks();
+
+    window.addEventListener('langChanged', (e) => {
+        loadAllPublishedBooks();
+    });
 });

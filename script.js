@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetChapterId = urlParams.get('chapterId');
 
     if (!bookId) {
-        alert('Kitap ID bulunamadı. Kütüphaneye yönlendiriliyorsunuz.');
+        alert(translations[currentLang].id_not_found);
         window.location.href = 'dashboard.html';
         return;
     }
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = allPages[currentSpreadIdx] || '';
             if (leftText.innerHTML !== content) leftText.innerHTML = content;
             leftNum.textContent = currentSpreadIdx + 1;
-            pageLabel.textContent = `Sayfa ${currentSpreadIdx + 1}`;
+            pageLabel.textContent = `${translations[currentLang].page_count} ${currentSpreadIdx + 1}`;
             prevBtn.disabled = currentSpreadIdx === 0;
         } else {
             const lIdx = currentSpreadIdx * 2;
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rightText.innerHTML !== (allPages[rIdx] || '')) rightText.innerHTML = allPages[rIdx] || '';
             leftNum.textContent = lIdx + 1;
             rightNum.textContent = rIdx + 1;
-            pageLabel.textContent = `Sayfa ${lIdx + 1} - ${rIdx + 1}`;
+            pageLabel.textContent = `${translations[currentLang].page_count} ${lIdx + 1} - ${rIdx + 1}`;
             prevBtn.disabled = currentSpreadIdx === 0;
         }
         renderChapterItems();
@@ -237,8 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
             li.innerHTML = `<span>${c.title}</span><button class="delete-chapter-btn">×</button>`;
             li.querySelector('.delete-chapter-btn').onclick = (e) => {
                 e.stopPropagation();
-                if (chapters.length <= 1) return alert('Son bölüm silinemez.');
-                if (confirm('Bölüm silinsin mi?')) {
+                if (chapters.length <= 1) return alert(translations[currentLang].last_chapter_alert);
+                if (confirm(translations[currentLang].delete_chapter_confirm)) {
                     chapters = chapters.filter(chap => chap.id !== c.id);
                     if (activeChapterId === c.id) { activeChapterId = chapters[0].id; currentSpreadIdx = 0; }
                     repaginate(); debounceSave();
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     addChapterBtn.onclick = () => {
-        const t = prompt('Bölüm İsmi:');
+        const t = prompt(translations[currentLang].chapter_name_prompt);
         if (!t) return;
         chapters.push({ id: Date.now(), title: t, content: '' });
         activeChapterId = chapters[chapters.length - 1].id;
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const trans = document.createElement('div');
     trans.id = 'page-transition'; trans.classList.add('active');
-    trans.innerHTML = '<div class="transition-logo">Sonsuz Kitap</div>';
+    trans.innerHTML = '<div class="transition-logo">Noctis Kitap Dünyası</div>';
     document.body.appendChild(trans);
     window.addEventListener('load', () => setTimeout(() => {
         trans.classList.add('hidden'); setTimeout(()=>trans.classList.remove('active'), 600);

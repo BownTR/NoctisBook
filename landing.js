@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const transitionOverlay = document.createElement('div');
     transitionOverlay.id = 'page-transition';
     transitionOverlay.classList.add('hidden');
-    transitionOverlay.innerHTML = '<div class="transition-logo">Sonsuz Kitap</div>';
+    transitionOverlay.innerHTML = `<div class="transition-logo">Noctis ${currentLang === 'tr' ? 'Kitap Dünyası' : 'Book World'}</div>`;
     document.body.appendChild(transitionOverlay);
 
     window.addEventListener('load', () => {
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const user = auth.currentUser;
         if (user) {
-            if (confirm('Çıkış yapmak istediğinize emin misiniz?')) {
+            if (confirm(translations[currentLang].logout_confirm)) {
                 auth.signOut().then(() => window.location.reload());
             }
         } else {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert('Başarıyla kayıt oldunuz!');
+            alert(translations[currentLang].register_success);
             window.location.href = 'dashboard.html';
         } catch (err) {
             alert('Hata: ' + err.message);
@@ -229,7 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const featuredBooks = books.slice(0, 4);
 
             if (featuredBooks.length === 0) {
-                discoverGrid.innerHTML = '<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">Henüz yayınlanmış bir eser bulunmuyor. İlk eseri sen yayınla!</div>';
+                const noBooksMsg = currentLang === 'tr' ? 'Henüz yayınlanmış bir eser bulunmuyor. İlk eseri sen yayınla!' : 'No published works yet. Be the first to publish one!';
+                discoverGrid.innerHTML = `<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">${noBooksMsg}</div>`;
                 return;
             }
 
@@ -245,10 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="discover-card-inner">
                         <img src="${coverImg}" class="discover-cover" alt="Kapak">
                         <div class="discover-info">
-                            <span class="discover-category">${book.category || 'Roman'}</span>
+                            <span class="discover-category">${(translations[currentLang].cat_map[book.category]) || (book.category || 'Roman')}</span>
                             <h3 class="discover-title">${book.title}</h3>
                             <div class="discover-footer">
-                                <p class="discover-author">✍ ${book.authorName || 'Anonim Yazar'}</p>
+                                <p class="discover-author">✍ ${book.authorName || (translations[currentLang].nav_guest)}</p>
                                 <div class="view-count-badge">👁 ${book.views || 0}</div>
                             </div>
                         </div>
@@ -268,4 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadFeaturedBooks();
 
+    window.addEventListener('langChanged', (e) => {
+        loadFeaturedBooks();
+        transitionOverlay.innerHTML = `<div class="transition-logo">Noctis ${e.detail.lang === 'tr' ? 'Kitap Dünyası' : 'Book World'}</div>`;
+    });
 });
