@@ -110,7 +110,7 @@
 
         /* Right Side: Content */
         .read-content-area {
-            padding: 80px 100px;
+            padding: 60px 40px; /* Reduced side padding for container */
             display: flex;
             justify-content: center;
             background: linear-gradient(to right, #0a0908, #111);
@@ -118,12 +118,12 @@
 
         .paper-view {
             width: 100%;
-            max-width: 800px;
+            max-width: 700px; /* WAS 800px */
             background: var(--paper-bg);
             color: var(--paper-text);
-            padding: 80px 100px;
+            padding: 70px 80px; /* WAS 80px 100px */
             border-radius: 4px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); /* Enhanced shadow */
             position: relative;
             min-height: 120vh;
         }
@@ -140,20 +140,21 @@
 
         .chapter-title-display {
             font-family: 'Playfair Display', serif;
-            font-size: 42px;
+            font-size: 24px; /* WAS 32px */
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 30px; /* WAS 40px */
             font-style: italic;
             border-bottom: 1px solid rgba(44, 36, 30, 0.1);
-            padding-bottom: 30px;
+            padding-bottom: 20px; /* WAS 25px */
         }
 
         .chapter-text-content {
             font-family: 'EB Garamond', serif;
-            font-size: 22px;
-            line-height: 1.8;
+            font-size: 16px; /* WAS 18px */
+            line-height: 1.5; /* WAS 1.7 */
             text-align: justify;
             white-space: pre-wrap;
+            color: rgba(44, 36, 30, 0.95);
         }
 
         .chapter-text-content p {
@@ -196,15 +197,100 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        /* Modern Sidebar Toggle */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--gold);
+            color: #000;
+            border-radius: 50%;
+            border: none;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-toggle.active {
+            transform: rotate(180deg);
+            background: #fff;
+        }
+
         @media (max-width: 1024px) {
-            .read-container { grid-template-columns: 1fr; }
-            .read-sidebar { height: auto; position: relative; padding: 40px; border-right: none; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }
-            .read-content-area { padding: 40px 20px; }
-            .paper-view { padding: 40px 30px; }
+            .read-container { 
+                grid-template-columns: 1fr; 
+                display: block; /* Switch to block for easier scrolling */
+            }
+
+            .sidebar-toggle { 
+                display: flex; 
+            }
+
+            .read-sidebar { 
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 320px;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                background: #0a0908;
+                box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+                padding: 40px 30px;
+                border: none;
+            }
+
+            .read-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .read-content-area { 
+                padding: 30px 20px;
+                background: var(--read-bg);
+            }
+
+            .paper-view { 
+                padding: 30px 20px; 
+                min-height: auto;
+                box-shadow: none;
+            }
+
+            .chapter-title-display {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            .chapter-text-content {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .read-sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7);
+                z-index: 9;
+                backdrop-filter: blur(5px);
+            }
+
+            .read-sidebar.open + .read-sidebar-overlay {
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" id="sidebar-toggle">📑</button>
+    <div class="read-sidebar-overlay" id="sidebar-overlay"></div>
+    
     <div class="scroll-progress" id="progress-bar"></div>
     <div class="grain-overlay"></div>
 
@@ -215,9 +301,9 @@
 
     <div class="read-container">
         <!-- Sidebar -->
-        <aside class="read-sidebar">
+        <aside class="read-sidebar" id="read-sidebar">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <a href="index.html" class="read-back" data-i18n="btn_back_library">← Kütüphaneye Dön</a>
+                <a href="dashboard.html" class="read-back" data-i18n="btn_back_library">← Kütüphaneye Dön</a>
                 <div class="lang-switcher">
                     <button class="lang-btn" data-lang="tr">TR</button>
                     <button class="lang-btn" data-lang="en">EN</button>

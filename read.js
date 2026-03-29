@@ -77,6 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.classList.add('active');
                     displayChapter(index);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    // Mobile sidebar auto-close
+                    if (window.innerWidth <= 1024) {
+                        readSidebar.classList.remove('open');
+                        sidebarToggle.classList.remove('active');
+                    }
                 };
                 chapterNav.appendChild(btn);
             });
@@ -105,6 +111,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + "%";
     };
+
+    // Mobile Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const readSidebar = document.getElementById('read-sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    if (sidebarToggle && readSidebar) {
+        const toggleSidebar = () => {
+            readSidebar.classList.toggle('open');
+            sidebarToggle.classList.toggle('active');
+        };
+
+        sidebarToggle.onclick = (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        };
+
+        sidebarOverlay.onclick = () => {
+            readSidebar.classList.remove('open');
+            sidebarToggle.classList.remove('active');
+        };
+    }
 
     loadBookData();
 

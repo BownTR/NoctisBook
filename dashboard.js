@@ -28,12 +28,38 @@ const handleDropdownLogic = () => {
                 profileDropdown.classList.remove('show');
             }
         });
-    } else {
-        console.error("Profile elements not found:", { profileTrigger, profileDropdown });
+    }
+};
+
+const handleMobileMenu = () => {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-actions');
+
+    if (menuToggle && navLinks) {
+        menuToggle.onclick = (e) => {
+            e.stopPropagation();
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        };
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    handleMobileMenu();
     const userNameEl = document.getElementById('user-name');
     const totalBooksEl = document.getElementById('total-books');
     const totalChaptersEl = document.getElementById('total-chapters');

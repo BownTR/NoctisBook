@@ -157,6 +157,7 @@ body {
     flex-direction: column;
     padding: 20px;
     position: relative;
+    overflow-y: auto; /* ENABLES SCROLLING */
 }
 
 .top-bar {

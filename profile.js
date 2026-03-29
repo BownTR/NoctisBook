@@ -7,6 +7,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveMsg = document.getElementById('save-msg');
     const logoutBtn = document.getElementById('logout-btn');
 
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-actions');
+
+    if (menuToggle && navLinks) {
+        menuToggle.onclick = (e) => {
+            e.stopPropagation();
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        };
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+    }
+
+    // Profile Dropdown logic
+    const profileTrigger = document.getElementById('profile-trigger');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    if (profileTrigger && profileDropdown) {
+        profileTrigger.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        };
+        window.addEventListener('click', (e) => {
+            if (!profileTrigger.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+    }
+
     auth.onAuthStateChanged((user) => {
         if (!user) {
             window.location.href = 'index.html';

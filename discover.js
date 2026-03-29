@@ -30,6 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 categories[cat].push(book);
             });
 
+            // Sort each category by VIEWS
+            Object.keys(categories).forEach(cat => {
+                categories[cat].sort((a, b) => (b.views || 0) - (a.views || 0));
+            });
+
             grid.innerHTML = '';
             
             // Render each category
@@ -42,15 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3>${(translations[currentLang].cat_map[catName]) || catName}</h3>
                         <div class="category-line"></div>
                     </div>
-                    <div class="discover-grid"></div>
+                    <div class="slider-container">
+                        <button class="slider-btn prev">❮</button>
+                        <div class="discover-grid slider-mode"></div>
+                        <button class="slider-btn next">❯</button>
+                    </div>
                 `;
                 
                 const catGrid = categorySection.querySelector('.discover-grid');
+                const prevBtn = categorySection.querySelector('.slider-btn.prev');
+                const nextBtn = categorySection.querySelector('.slider-btn.next');
+
                 categories[catName].forEach((book, idx) => {
                     const coverImg = book.cover || 'kapak.png';
                     const card = document.createElement('div');
-                    card.className = 'discover-card';
-                    card.style.animationDelay = `${idx * 0.1}s`;
+                    card.className = `discover-card ${idx === 0 ? 'active' : ''}`;
                     card.onclick = () => window.incrementViewsAndRedirect(book.id);
 
                     card.innerHTML = `
@@ -68,6 +79,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     catGrid.appendChild(card);
                 });
+
+                // Slider logic for this specific category
+                let currentIndex = 0;
+                const cards = catGrid.querySelectorAll('.discover-card');
+                
+                const updateSlider = (newIndex) => {
+                    cards[currentIndex].classList.remove('active');
+                    currentIndex = (newIndex + cards.length) % cards.length;
+                    cards[currentIndex].classList.add('active');
+                };
+
+                if (cards.length <= 1) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                } else {
+                    prevBtn.onclick = () => updateSlider(currentIndex - 1);
+                    nextBtn.onclick = () => updateSlider(currentIndex + 1);
+                }
 
                 grid.appendChild(categorySection);
             });

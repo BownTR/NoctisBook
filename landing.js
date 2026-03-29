@@ -130,7 +130,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Unified Navbar Logic
+    // Mobile Menu Toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-actions');
+
+    if (menuToggle && navLinks) {
+        menuToggle.onclick = (e) => {
+            e.stopPropagation();
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        };
+
+        // Close menu on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Close menu on click outside
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+    }
+
     const profileTrigger = document.getElementById('profile-trigger');
     const profileDropdown = document.getElementById('profile-dropdown');
     const userInfoName = document.getElementById('user-info-name');
@@ -213,6 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const discoverGrid = document.getElementById('featured-grid');
         if (!discoverGrid) return;
 
+        const prevBtn = document.getElementById('slider-prev');
+        const nextBtn = document.getElementById('slider-next');
+
         try {
             const snapshot = await db.collection('user_books')
                 .where('published', '==', true)
@@ -220,17 +250,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            books.sort((a, b) => {
-                const dateA = a.publishedAt ? a.publishedAt.seconds : 0;
-                const dateB = b.publishedAt ? b.publishedAt.seconds : 0;
-                return dateB - dateA; // newest first
-            });
+            // Sort by VIEWS (Highest to Lowest)
+            books.sort((a, b) => (b.views || 0) - (a.views || 0));
 
-            const featuredBooks = books.slice(0, 4);
+            const featuredBooks = books.slice(0, 8); // Top 8 books
 
             if (featuredBooks.length === 0) {
                 const noBooksMsg = currentLang === 'tr' ? 'Henüz yayınlanmış bir eser bulunmuyor. İlk eseri sen yayınla!' : 'No published works yet. Be the first to publish one!';
                 discoverGrid.innerHTML = `<div class="loading-spinner" style="grid-column: 1 / -1; text-align: center; color: var(--text-dim);">${noBooksMsg}</div>`;
+                if(prevBtn) prevBtn.style.display = 'none';
+                if(nextBtn) nextBtn.style.display = 'none';
                 return;
             }
 
@@ -238,8 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             featuredBooks.forEach((book, index) => {
                 const coverImg = book.cover || 'kapak.png';
                 const card = document.createElement('div');
-                card.className = 'discover-card fade-up';
-                card.style.animationDelay = `${index * 0.1}s`;
+                card.className = `discover-card ${index === 0 ? 'active' : ''}`;
                 card.onclick = () => window.incrementViewsAndRedirect(book.id);
 
                 card.innerHTML = `
@@ -257,13 +285,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 discoverGrid.appendChild(card);
             });
+
+            // Slider Nav Logic
+            let currentIndex = 0;
+            const cards = discoverGrid.querySelectorAll('.discover-card');
+            
+            const updateSlider = (newIndex) => {
+                cards[currentIndex].classList.remove('active');
+                currentIndex = (newIndex + cards.length) % cards.length;
+                cards[currentIndex].classList.add('active');
+            };
+
+            if (prevBtn && nextBtn) {
+                if(cards.length <= 1) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                } else {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                    prevBtn.onclick = () => updateSlider(currentIndex - 1);
+                    nextBtn.onclick = () => updateSlider(currentIndex + 1);
+                }
+            }
+
         } catch (err) {
             console.error("Home Load Error:", err);
-            discoverGrid.innerHTML = `
-                <div class="loading-spinner" style="grid-column: 1 / -1; color: #ff6464; text-align: center;">
-                    Eserler yüklenirken bir sorun oluştu.<br>
-                    <small>${err.code === 'permission-denied' ? 'Firebase Güvenlik Kuralları erişimi engelliyor. Lütfen kuralları kontrol edin.' : err.message}</small>
-                </div>`;
         }
     };
 
