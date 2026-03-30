@@ -291,9 +291,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const cards = discoverGrid.querySelectorAll('.discover-card');
             
             const updateSlider = (newIndex) => {
-                cards[currentIndex].classList.remove('active');
-                currentIndex = (newIndex + cards.length) % cards.length;
-                cards[currentIndex].classList.add('active');
+                const containerWidth = discoverGrid.parentElement.offsetWidth;
+                const gap = 30;
+                let visibleCount = 4;
+                if (window.innerWidth <= 600) visibleCount = 1;
+                else if (window.innerWidth <= 1024) visibleCount = 2;
+
+                const maxIndex = Math.max(0, cards.length - visibleCount);
+                currentIndex = Math.max(0, Math.min(newIndex, maxIndex));
+
+                // Calculate exact shift
+                const cardWidth = (discoverGrid.offsetWidth - (gap * (cards.length - 1))) / cards.length;
+                const moveAmount = currentIndex * (100 / visibleCount);
+                
+                discoverGrid.style.transform = `translateX(calc(-${moveAmount}% - ${currentIndex * (gap / visibleCount * (visibleCount-1) / (cards.length-1) )}px))`;
+                // Actually, simplified math for flex gap:
+                const percentageShift = (currentIndex * 100) / visibleCount;
+                const gapShift = currentIndex * (gap - (gap / visibleCount));
+                
+                // Let's use a cleaner approach:
+                const shiftPerCard = (discoverGrid.scrollWidth + gap) / cards.length;
+                discoverGrid.style.transform = `translateX(-${currentIndex * shiftPerCard}px)`;
+
+                // Button states
+                if (prevBtn && nextBtn) {
+                    prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
+                    prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'all';
+                    nextBtn.style.opacity = currentIndex >= maxIndex ? '0.3' : '1';
+                    nextBtn.style.pointerEvents = currentIndex >= maxIndex ? 'none' : 'all';
+                }
             };
 
             if (prevBtn && nextBtn) {
@@ -301,12 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     prevBtn.style.display = 'none';
                     nextBtn.style.display = 'none';
                 } else {
-                    prevBtn.style.display = 'flex';
-                    nextBtn.style.display = 'flex';
                     prevBtn.onclick = () => updateSlider(currentIndex - 1);
                     nextBtn.onclick = () => updateSlider(currentIndex + 1);
+                    // Initial state
+                    updateSlider(0);
                 }
             }
+
+            window.addEventListener('resize', () => updateSlider(currentIndex));
 
         } catch (err) {
             console.error("Home Load Error:", err);

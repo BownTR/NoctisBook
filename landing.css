@@ -335,7 +335,7 @@ body {
 .discover-page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 150px 40px 60px;
+    padding: 120px 40px 60px;
 }
 .discover-page-container .discover-section {
     padding: 0; 
@@ -385,52 +385,71 @@ body {
 
 /* Responsive Slider/Grid Logic */
 .slider-container {
-    padding: 0;
-    margin: 40px 0;
     position: relative;
     width: 100%;
+    margin: 40px 0;
 }
 
-.discover-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
+.slider-wrapper {
+    width: 100%;
+    overflow: hidden; /* Clips the inner content */
+    padding: 20px 0;
 }
 
 .discover-grid.slider-mode {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    display: flex;
     gap: 30px;
     width: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 
-@media (min-width: 1025px) {
-    .discover-grid.slider-mode {
-        grid-template-columns: repeat(4, 1fr);
+.slider-mode .discover-card {
+    flex: 0 0 calc((100% - 90px) / 4); /* 4 items on desktop */
+    min-width: 220px;
+}
+
+@media (max-width: 1024px) {
+    .slider-mode .discover-card {
+        flex: 0 0 calc((100% - 30px) / 2); /* 2 items on tablet */
+    }
+}
+
+@media (max-width: 600px) {
+    .slider-mode .discover-card {
+        flex: 0 0 100%; /* 1 item on mobile */
     }
 }
 
 /* Base Slider Buttons */
 .slider-btn {
-    background: rgba(212, 175, 55, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(212, 175, 55, 0.4);
     color: var(--accent-gold);
-    width: 44px;
-    height: 44px;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
     cursor: pointer;
-    display: none; /* Desktop'ta gizle */
+    display: flex !important; /* Always show if JS doesn't hide */
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    transition: all 0.3s ease;
+    font-size: 22px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 20;
+    z-index: 100;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
+
+.slider-btn.prev { left: -70px; }
+.slider-btn.next { right: -70px; }
+
+@media (max-width: 1350px) {
+    .slider-btn.prev { left: 10px; }
+    .slider-btn.next { right: 10px; }
 }
 
 .slider-btn:hover {
@@ -439,43 +458,12 @@ body {
     transform: translateY(-50%) scale(1.1);
 }
 
-/* Mobile Slider Mode (Max 1024px) */
+/* Mobile Slider Overrides - Removed previous display:none mode */
 @media (max-width: 1024px) {
-    .slider-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        max-width: 450px;
-        margin: 40px auto;
-        padding: 0 50px; /* Space for buttons */
+    .discover-section .slider-container {
+        padding: 0;
+        overflow: visible; /* Allow buttons to float better */
     }
-
-    .discover-grid.slider-mode {
-        display: flex;
-        overflow: hidden;
-        width: 100%;
-        max-width: 280px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        border-radius: 16px;
-        margin: 0;
-    }
-
-    .slider-mode .discover-card {
-        flex: 0 0 100%;
-        display: none;
-    }
-
-    .slider-mode .discover-card.active {
-        display: block;
-        animation: sliderFade 0.6s forwards;
-    }
-
-    .slider-btn {
-        display: flex;
-    }
-
-    .slider-btn.prev { left: 0; }
-    .slider-btn.next { right: 0; }
 }
 
 @keyframes sliderFade {
@@ -490,7 +478,7 @@ body {
 }
 
 .discover-section {
-    padding: 100px 40px;
+    padding: 60px 40px 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -595,7 +583,7 @@ body {
 
 /* Features */
 .features {
-    padding: 150px 40px;
+    padding: 60px 40px;
     max-width: 1200px;
     margin: 0 auto;
 }

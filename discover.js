@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="slider-container">
                         <button class="slider-btn prev">❮</button>
-                        <div class="discover-grid slider-mode"></div>
+                        <div class="slider-wrapper">
+                            <div class="discover-grid slider-mode"></div>
+                        </div>
                         <button class="slider-btn next">❯</button>
                     </div>
                 `;
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 categories[catName].forEach((book, idx) => {
                     const coverImg = book.cover || 'kapak.png';
                     const card = document.createElement('div');
-                    card.className = `discover-card ${idx === 0 ? 'active' : ''}`;
+                    card.className = `discover-card`;
                     card.onclick = () => window.incrementViewsAndRedirect(book.id);
 
                     card.innerHTML = `
@@ -85,9 +87,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cards = catGrid.querySelectorAll('.discover-card');
                 
                 const updateSlider = (newIndex) => {
-                    cards[currentIndex].classList.remove('active');
-                    currentIndex = (newIndex + cards.length) % cards.length;
-                    cards[currentIndex].classList.add('active');
+                    if (cards.length === 0) return;
+                    
+                    const gap = 30;
+                    let visibleCount = 4;
+                    if (window.innerWidth <= 600) visibleCount = 1;
+                    else if (window.innerWidth <= 1024) visibleCount = 2;
+
+                    const maxIndex = Math.max(0, cards.length - visibleCount);
+                    currentIndex = Math.max(0, Math.min(newIndex, maxIndex));
+
+                    const shiftPerCard = (catGrid.scrollWidth + gap) / cards.length;
+                    catGrid.style.transform = `translateX(-${currentIndex * shiftPerCard}px)`;
+
+                    // Button states
+                    if (prevBtn && nextBtn) {
+                        prevBtn.style.opacity = currentIndex === 0 ? '0.2' : '1';
+                        prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'all';
+                        nextBtn.style.opacity = currentIndex >= maxIndex ? '0.2' : '1';
+                        nextBtn.style.pointerEvents = currentIndex >= maxIndex ? 'none' : 'all';
+                    }
                 };
 
                 if (cards.length <= 1) {
@@ -96,9 +115,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     prevBtn.onclick = () => updateSlider(currentIndex - 1);
                     nextBtn.onclick = () => updateSlider(currentIndex + 1);
+                    // Initial state for this specific slider
+                    setTimeout(() => updateSlider(0), 10);
+                    
+                    // Store for resize
+                    catGrid.doUpdate = () => updateSlider(currentIndex);
                 }
 
                 grid.appendChild(categorySection);
+            });
+
+            // Global resize for all sliders on discover page
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.discover-grid.slider-mode').forEach(g => {
+                    if (g.doUpdate) g.doUpdate();
+                });
             });
         } catch (err) {
             console.error("Discover Load Error:", err);
