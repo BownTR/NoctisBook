@@ -85,18 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let userBooks = [];
     let currentEditingBookId = null;
 
-    auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-            window.location.href = 'index.html';
-            return;
-        }
-        userNameEl.textContent = user.displayName ? user.displayName.split(' ')[0] : (translations[currentLang].nav_guest);
-        const userInfoName = document.getElementById('user-info-name');
-        if (userInfoName) userInfoName.textContent = user.displayName || (translations[currentLang].nav_guest);
-        
-        handleDropdownLogic();
-        loadBooks(user.uid);
-    });
+
 
     const loadBooks = async (uid) => {
         try {
@@ -434,4 +423,19 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBooks();
         calculateGlobalStats();
     });
+
+    // Start Auth Check
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            window.location.href = 'index.html';
+            return;
+        }
+        userNameEl.textContent = user.displayName ? user.displayName.split(' ')[0] : (translations[currentLang].nav_guest);
+        const userInfoName = document.getElementById('user-info-name');
+        if (userInfoName) userInfoName.textContent = user.displayName || (translations[currentLang].nav_guest);
+        
+        handleDropdownLogic();
+        loadBooks(user.uid);
+    });
 });
+
