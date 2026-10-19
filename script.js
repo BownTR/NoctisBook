@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateDimensions = () => {
         const isMobile = window.innerWidth <= 800;
         if (isMobile) {
-            WRITING_HEIGHT = Math.max(450, Math.min(540, window.innerHeight - 200));
+            WRITING_HEIGHT = 440;
             WRITING_WIDTH = leftText.clientWidth || Math.max(260, window.innerWidth - 64);
         } else {
             WRITING_HEIGHT = leftText.clientHeight || 580;
@@ -187,8 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncGhost = () => {
         const isMobile = window.innerWidth <= 800;
         ghostPage.style.width = WRITING_WIDTH + 'px';
-        ghostPage.style.fontSize = isMobile ? '15px' : '14px';
-        ghostPage.style.lineHeight = isMobile ? '1.62' : '1.6';
+        ghostPage.style.fontSize = isMobile ? '13.5px' : '14px';
+        ghostPage.style.lineHeight = isMobile ? '1.55' : '1.6';
         ghostPage.style.fontFamily = "'Poppins', sans-serif";
         ghostPage.style.textAlign = 'left';
         ghostPage.style.whiteSpace = 'pre-wrap';
