@@ -69,6 +69,26 @@
                 <h2 data-i18n="my_books">Kitaplarım</h2>
                 <button id="open-create-book" class="add-new-btn" data-i18n="btn_new_book">+ Yeni Kitap Oluştur</button>
             </div>
+
+            <!-- Library Tabs: Published / Drafts / All -->
+            <div class="library-tabs" id="library-tabs">
+                <button class="lib-tab-btn active" data-tab="published">
+                    <span class="tab-icon">🌍</span>
+                    <span data-i18n="tab_published">Yayında Olanlar</span>
+                    <span class="tab-badge" id="badge-published">0</span>
+                </button>
+                <button class="lib-tab-btn" data-tab="draft">
+                    <span class="tab-icon">📝</span>
+                    <span data-i18n="tab_unpublished">Yayında Olmayanlar</span>
+                    <span class="tab-badge" id="badge-draft">0</span>
+                </button>
+                <button class="lib-tab-btn" data-tab="all">
+                    <span class="tab-icon">📚</span>
+                    <span data-i18n="tab_all">Tümü</span>
+                    <span class="tab-badge" id="badge-all">0</span>
+                </button>
+            </div>
+
             <div id="books-grid" class="books-grid">
                 <!-- Books will be loaded here -->
                 <div class="loading-spinner" data-i18n="loading_books">Kitaplarınız yükleniyor...</div>

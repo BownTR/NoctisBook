@@ -110,22 +110,53 @@
 
         /* Right Side: Content */
         .read-content-area {
-            padding: 60px 40px; /* Reduced side padding for container */
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             background: linear-gradient(to right, #0a0908, #111);
+            min-height: 100vh;
+        }
+
+        .reader-wrapper {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .paper-view {
             width: 100%;
-            max-width: 700px; /* WAS 800px */
-            background: var(--paper-bg);
+            min-height: 720px;
+            background: #fdfaf2;
             color: var(--paper-text);
-            padding: 70px 80px; /* WAS 80px 100px */
-            border-radius: 4px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5); /* Enhanced shadow */
+            padding: 44px 52px 26px;
+            border-radius: 16px;
+            border: 2px solid rgba(212, 175, 55, 0.45);
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.75), 0 0 25px rgba(212, 175, 55, 0.12);
             position: relative;
-            min-height: 120vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: opacity 0.2s ease;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        /* Inner vintage book boundary frame */
+        .paper-view::after {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            border: 1px solid rgba(180, 140, 50, 0.28);
+            border-radius: 10px;
+            pointer-events: none;
+            box-sizing: border-box;
         }
 
         /* Paper Texture Effect */
@@ -134,32 +165,199 @@
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background-image: url('https://www.transparenttextures.com/patterns/old-paper.png');
-            opacity: 0.1;
+            opacity: 0.12;
             pointer-events: none;
+            border-radius: 14px;
         }
 
-        .chapter-title-display {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px; /* WAS 32px */
-            text-align: center;
-            margin-bottom: 30px; /* WAS 40px */
-            font-style: italic;
-            border-bottom: 1px solid rgba(44, 36, 30, 0.1);
-            padding-bottom: 20px; /* WAS 25px */
+        .paper-header {
+            display: none !important;
+        }
+
+        /* Reader Top Navigation Bar */
+        .reader-top-bar {
+            width: 100%;
+            max-width: 760px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 8px 14px;
+            background: rgba(18, 16, 14, 0.88);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 12px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 12px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+            z-index: 50;
+            box-sizing: border-box;
+        }
+
+        .reader-top-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+        }
+
+        .reader-top-back-btn:hover {
+            color: var(--gold);
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.18);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.22);
+        }
+
+        .reader-top-back-btn .back-arrow {
+            font-size: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .reader-top-back-btn:hover .back-arrow {
+            transform: translateX(-2px);
         }
 
         .chapter-text-content {
             font-family: 'EB Garamond', serif;
-            font-size: 16px; /* WAS 18px */
-            line-height: 1.5; /* WAS 1.7 */
+            font-size: 16.5px;
+            line-height: 1.7;
             text-align: justify;
-            white-space: pre-wrap;
-            color: rgba(44, 36, 30, 0.95);
+            color: rgba(38, 30, 22, 0.95);
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
 
         .chapter-text-content p {
-            margin-bottom: 25px;
-            text-indent: 40px;
+            margin-bottom: 14px;
+            text-indent: 28px;
+        }
+
+        .paper-footer {
+            text-align: center;
+            border-top: 1px solid rgba(44, 36, 30, 0.12);
+            padding-top: 12px;
+            flex-shrink: 0;
+        }
+
+        .paper-page-num {
+            font-size: 13px;
+            color: rgba(44, 36, 30, 0.5);
+            font-style: italic;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 2px;
+        }
+
+        /* Reader Navigation Bar (Separated pages 1, 2, 3...) */
+        .reader-page-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 760px;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: nowrap;
+            position: relative;
+            z-index: 50;
+            touch-action: manipulation;
+        }
+
+        .reader-pages-list {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .page-num-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            color: rgba(255, 255, 255, 0.8);
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            backdrop-filter: blur(8px);
+        }
+
+        .page-num-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            color: #fff;
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+        }
+
+        .page-num-btn.active {
+            background: linear-gradient(135deg, #d4af37, #b89328);
+            color: #0b0a08;
+            border-color: var(--gold);
+            font-weight: 700;
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.45);
+            transform: scale(1.05);
+        }
+
+        .page-num-ellipsis {
+            color: rgba(212, 175, 55, 0.5);
+            padding: 0 4px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .reader-nav-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            font-family: 'Outfit', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .reader-nav-btn:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .reader-nav-btn:disabled {
+            opacity: 0.25;
+            cursor: default;
+            pointer-events: none;
         }
 
         /* Scroll Progress */
@@ -203,8 +401,8 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             background: var(--gold);
             color: #000;
             border-radius: 50%;
@@ -214,7 +412,7 @@
             cursor: pointer;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -226,7 +424,7 @@
         @media (max-width: 1024px) {
             .read-container { 
                 grid-template-columns: 1fr; 
-                display: block; /* Switch to block for easier scrolling */
+                display: block;
             }
 
             .sidebar-toggle { 
@@ -252,24 +450,83 @@
             }
 
             .read-content-area { 
-                padding: 30px 20px;
+                padding: 15px 12px 25px;
                 background: var(--read-bg);
+                min-height: 100vh;
+            }
+
+            .reader-wrapper {
+                width: 100%;
+                max-width: 520px;
+                gap: 12px;
             }
 
             .paper-view { 
-                padding: 30px 20px; 
-                min-height: auto;
-                box-shadow: none;
+                width: 100%;
+                min-height: calc(100vh - 130px);
+                max-height: none;
+                padding: 26px 22px 18px; 
+                box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+                border: 1.5px solid rgba(212, 175, 55, 0.45);
+                cursor: pointer;
             }
 
-            .chapter-title-display {
-                font-size: 20px;
-                margin-bottom: 20px;
+            .paper-view::after {
+                top: 7px;
+                left: 7px;
+                right: 7px;
+                bottom: 7px;
+                border-radius: 7px;
+            }
+
+            .reader-top-bar {
+                padding: 6px 10px;
+                margin-bottom: 10px;
+            }
+
+            .reader-top-back-btn {
+                padding: 6px 12px;
+                font-size: 13px;
             }
 
             .chapter-text-content {
+                font-size: 15.5px;
+                line-height: 1.68;
+                min-height: 0;
+                flex: 1;
+                margin-bottom: 12px;
+            }
+
+            .reader-page-nav {
+                gap: 5px;
+                margin-top: 10px;
+                flex-wrap: nowrap;
+                z-index: 100;
+            }
+
+            .reader-nav-btn {
+                padding: 6px 10px;
                 font-size: 14px;
-                line-height: 1.5;
+                min-width: 38px;
+                height: 38px;
+                justify-content: center;
+                border-radius: 9px;
+                touch-action: manipulation;
+                cursor: pointer;
+            }
+
+            .reader-nav-btn .nav-text {
+                display: none;
+            }
+
+            .page-num-btn {
+                min-width: 36px;
+                height: 38px;
+                padding: 0 6px;
+                font-size: 13px;
+                border-radius: 9px;
+                touch-action: manipulation;
+                cursor: pointer;
             }
 
             .read-sidebar-overlay {
@@ -302,12 +559,10 @@
     <div class="read-container">
         <!-- Sidebar -->
         <aside class="read-sidebar" id="read-sidebar">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <a href="dashboard.html" class="read-back" data-i18n="btn_back_library">← Kütüphaneye Dön</a>
-                <div class="lang-switcher">
-                    <button class="lang-btn" data-lang="tr">TR</button>
-                    <button class="lang-btn" data-lang="en">EN</button>
-                </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <a href="index.html" class="read-back" data-i18n="nav_home" style="flex: 1; text-align: center; justify-content: center;">🏠 Ana Sayfa</a>
+                <a href="discover.html" class="read-back" data-i18n="nav_discover" style="flex: 1; text-align: center; justify-content: center;">🌍 Keşfet</a>
+                <a href="dashboard.html" class="read-back" data-i18n="btn_back_library" style="flex: 1; text-align: center; justify-content: center;">📚 Kütüphanem</a>
             </div>
             
             <div class="read-book-cover">
@@ -330,14 +585,45 @@
 
         <!-- Content Area -->
         <main class="read-content-area">
-            <article class="paper-view">
-                <h2 class="chapter-title-display" id="display-chapter-title">Bölüm Başlığı</h2>
-                <div class="chapter-text-content" id="display-chapter-content" data-i18n="writing_soon">
-                    Burası yakında kelimelerle dolacak...
+            <div class="reader-wrapper">
+                <!-- Reader Top Bar: Sadece Geri Dön Butonu -->
+                <div class="reader-top-bar">
+                    <button class="reader-top-back-btn" id="reader-top-back-btn" title="Geri Dön">
+                        <span class="back-arrow">←</span>
+                        <span class="back-label">Geri</span>
+                    </button>
                 </div>
-            </article>
+
+                <article class="paper-view" id="paper-view">
+                    <div class="chapter-text-content" id="display-chapter-content">
+                        Burası yakında kelimelerle dolacak...
+                    </div>
+
+                    <footer class="paper-footer">
+                        <span class="paper-page-num" id="paper-page-num">— 1 —</span>
+                    </footer>
+                </article>
+
+                <!-- Page Navigation Bar with Separated Page Numbers -->
+                <div class="reader-page-nav">
+                    <button class="reader-nav-btn prev" id="reader-prev-btn">
+                        <span class="nav-arrow">❮</span>
+                        <span class="nav-text" id="reader-prev-text" data-i18n="btn_prev_page">Önceki</span>
+                    </button>
+                    <div class="reader-pages-list" id="reader-pages-list">
+                        <!-- Dynamic page buttons: 1, 2, 3 ... -->
+                    </div>
+                    <button class="reader-nav-btn next" id="reader-next-btn">
+                        <span class="nav-text" id="reader-next-text" data-i18n="btn_next_page">Sonraki</span>
+                        <span class="nav-arrow">❯</span>
+                    </button>
+                </div>
+            </div>
         </main>
     </div>
+
+    <!-- Hidden Calculation Ghost -->
+    <div id="reader-ghost" style="position: absolute; left: -9999px; visibility: hidden; pointer-events: none; box-sizing: border-box;"></div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>

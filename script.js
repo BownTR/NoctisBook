@@ -22,7 +22,35 @@ const handleDropdownLogic = () => {
     }
 };
 
+const handleMobileMenu = () => {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-actions');
+
+    if (menuToggle && navLinks) {
+        menuToggle.onclick = (e) => {
+            e.stopPropagation();
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        };
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    handleMobileMenu();
     // URL Params
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('bookId');
@@ -50,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ghostPage = document.getElementById('ghost-page');
     const saveLabel = document.getElementById('save-notification');
     const bookEl = document.getElementById('book-el');
-    const menuToggle = document.getElementById('menu-toggle');
+    const menuToggle = document.getElementById('sidebar-toggle-btn') || document.getElementById('menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
@@ -112,10 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let WRITING_WIDTH = 400;
 
     const updateDimensions = () => {
+        const isMobile = window.innerWidth <= 800;
         WRITING_HEIGHT = leftText.clientHeight;
         WRITING_WIDTH = leftText.clientWidth;
-        if (WRITING_WIDTH < 50) WRITING_WIDTH = 400;
-        if (WRITING_HEIGHT < 50) WRITING_HEIGHT = 580;
+        if (WRITING_WIDTH < 50) WRITING_WIDTH = isMobile ? Math.max(260, window.innerWidth - 60) : 400;
+        if (WRITING_HEIGHT < 50) WRITING_HEIGHT = isMobile ? Math.max(300, window.innerHeight - 240) : 580;
         syncGhost();
     };
 
@@ -513,8 +542,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    menuToggle.onclick = () => sidebar.classList.toggle('open');
-    sidebarOverlay.onclick = () => sidebar.classList.remove('open');
+    if (menuToggle) menuToggle.onclick = () => sidebar.classList.toggle('open');
+    if (sidebarOverlay) sidebarOverlay.onclick = () => sidebar.classList.remove('open');
     window.onresize = () => { updateDimensions(); repaginate(); };
     leftText.oninput = onInput;
     rightText.oninput = onInput;

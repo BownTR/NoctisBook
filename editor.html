@@ -16,6 +16,11 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">Noctis<span>Kitap</span></a>
+            <button class="menu-toggle" id="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="nav-links" id="nav-actions">
                 <div class="lang-switcher">
                     <button class="lang-btn" data-lang="tr">TR</button>
@@ -35,8 +40,6 @@
             </div>
         </div>
     </nav>
-
-    <button id="menu-toggle" class="mobile-only-btn">☰</button>
 
     <div class="app-container">
         <!-- Sidebar -->
@@ -77,9 +80,12 @@
         <!-- Main Window -->
         <main class="main-content">
             <div class="top-bar">
-                <button id="prev-btn" class="nav-btn" data-i18n="btn_prev">Önceki</button>
-                <div id="page-label">Sayfa 1 - 2</div>
-                <button id="next-btn" class="nav-btn" data-i18n="btn_next">Sonraki</button>
+                <button id="sidebar-toggle-btn" class="mobile-only-btn" title="Bölümler">📑</button>
+                <div class="page-nav-group">
+                    <button id="prev-btn" class="nav-btn" data-i18n="btn_prev">Önceki</button>
+                    <div id="page-label">Sayfa 1 - 2</div>
+                    <button id="next-btn" class="nav-btn" data-i18n="btn_next">Sonraki</button>
+                </div>
             </div>
 
             <div class="book-container">

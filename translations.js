@@ -64,6 +64,11 @@ const translations = {
         "category_req": "Kategori (Zorunlu)",
         "select_category": "Bir kategori seç...",
         "btn_publish_now": "Şimdi Yayınla 🌍",
+        "tab_published": "Yayında Olanlar",
+        "tab_unpublished": "Yayında Olmayanlar",
+        "tab_all": "Tümü",
+        "no_published_books": "Henüz yayında olan bir kitabınız bulunmuyor.",
+        "no_unpublished_books": "Henüz yayında olmayan bir taslağınız bulunmuyor.",
 
         // Discover
         "discover_title": "Keşfet",
@@ -101,6 +106,10 @@ const translations = {
         "author_name": "Yazar Adı",
         "views": "İzlenme",
         "writing_soon": "Burası yakında kelimelerle dolacak...",
+        "btn_prev_page": "Önceki Sayfa",
+        "btn_next_page": "Sonraki Sayfa",
+        "btn_next_chapter": "Sonraki Bölüme Geç",
+        "btn_prev_chapter": "Önceki Bölüme Geç",
 
         // Categories
         "cat_romance": "Romantik",
@@ -204,6 +213,11 @@ const translations = {
         "category_req": "Category (Required)",
         "select_category": "Select a category...",
         "btn_publish_now": "Publish Now 🌍",
+        "tab_published": "Published",
+        "tab_unpublished": "Drafts",
+        "tab_all": "All",
+        "no_published_books": "You have no published books yet.",
+        "no_unpublished_books": "You have no draft books yet.",
 
         // Discover
         "discover_title": "Discover",
@@ -241,6 +255,10 @@ const translations = {
         "author_name": "Author Name",
         "views": "Views",
         "writing_soon": "This place will soon be filled with words...",
+        "btn_prev_page": "Previous Page",
+        "btn_next_page": "Next Page",
+        "btn_next_chapter": "Next Chapter",
+        "btn_prev_chapter": "Previous Chapter",
 
         // Categories
         "cat_romance": "Romance",

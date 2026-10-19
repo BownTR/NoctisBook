@@ -29,6 +29,23 @@ db.serialize(() => {
     )`);
 });
 
+const MIME_TYPES = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'application/javascript; charset=utf-8',
+    '.json': 'application/json; charset=utf-8',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon',
+    '.webp': 'image/webp',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf'
+};
+
 const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -40,10 +57,40 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Static file serving for GET requests
+    if (req.method === 'GET') {
+        let reqPath = req.url.split('?')[0];
+        if (reqPath === '/') reqPath = '/index.html';
+
+        const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
+        const filePath = path.join(__dirname, safePath);
+
+        fs.stat(filePath, (err, stats) => {
+            if (!err && stats.isFile()) {
+                const ext = path.extname(filePath).toLowerCase();
+                const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+                res.writeHead(200, { 'Content-Type': contentType });
+                fs.createReadStream(filePath).pipe(res);
+            } else {
+                res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+                res.end('404 Sayfa Bulunamadı');
+            }
+        });
+        return;
+    }
+
     let body = '';
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
-        const parsedBody = body ? JSON.parse(body) : {};
+        let parsedBody = {};
+        if (body) {
+            try {
+                parsedBody = JSON.parse(body);
+            } catch (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ success: false, message: 'Geçersiz veri formatı.' }));
+            }
+        }
 
         // 1. REGISTER
         if (req.method === 'POST' && req.url === '/register') {
@@ -92,9 +139,11 @@ const server = http.createServer((req, res) => {
             db.serialize(() => {
                 db.run(`DELETE FROM chapters WHERE user_id = ?`, [user_id]);
                 const stmt = db.prepare(`INSERT INTO chapters (user_id, title, content) VALUES (?, ?, ?)`);
-                chapters.forEach(chap => {
-                    stmt.run(user_id, chap.title, chap.content);
-                });
+                if (Array.isArray(chapters)) {
+                    chapters.forEach(chap => {
+                        stmt.run(user_id, chap.title, chap.content);
+                    });
+                }
                 stmt.finalize();
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -111,8 +160,8 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
     console.log(`-----------------------------------------`);
-    console.log(`Gerçek Veri Tabanı Aktif! (SQLite)`);
+    console.log(`Noctis Kitap Dünyası Başlatıldı!`);
     console.log(`URL: http://localhost:${PORT}`);
-    console.log(`Dosya: ${DB_PATH}`);
+    console.log(`Veritabanı (SQLite): ${DB_PATH}`);
     console.log(`-----------------------------------------`);
 });

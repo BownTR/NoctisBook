@@ -84,8 +84,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let userBooks = [];
     let currentEditingBookId = null;
+    let currentTab = 'published';
 
+    // Library Tabs
+    const tabBtns = document.querySelectorAll('.lib-tab-btn');
+    const badgePublished = document.getElementById('badge-published');
+    const badgeDraft = document.getElementById('badge-draft');
+    const badgeAll = document.getElementById('badge-all');
 
+    tabBtns.forEach(btn => {
+        btn.onclick = () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTab = btn.getAttribute('data-tab');
+            renderBooks();
+        };
+    });
+
+    const updateTabBadges = () => {
+        const pubCount = userBooks.filter(b => b.published).length;
+        const draftCount = userBooks.filter(b => !b.published).length;
+        if (badgePublished) badgePublished.textContent = pubCount;
+        if (badgeDraft) badgeDraft.textContent = draftCount;
+        if (badgeAll) badgeAll.textContent = userBooks.length;
+    };
 
     const loadBooks = async (uid) => {
         try {
@@ -105,6 +127,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             console.log("Yüklenen Kitap Sayısı: ", userBooks.length);
+            updateTabBadges();
+            
+            // Eğer yayında hiç kitap yoksa ama taslak varsa kullanıcıya otomatik taslakları veya tümünü göster
+            const pubCount = userBooks.filter(b => b.published).length;
+            if (pubCount === 0 && userBooks.length > 0 && currentTab === 'published') {
+                currentTab = 'draft';
+                tabBtns.forEach(b => {
+                    b.classList.toggle('active', b.getAttribute('data-tab') === 'draft');
+                });
+            }
+
             renderBooks();
             calculateGlobalStats();
         } catch (err) {
@@ -116,12 +149,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderBooks = () => {
         booksGrid.innerHTML = '';
+        updateTabBadges();
+
         if (userBooks.length === 0) {
             booksGrid.innerHTML = `<div class="loading-spinner">${translations[currentLang].loading_books}</div>`;
             return;
         }
 
-        userBooks.forEach(book => {
+        let filteredBooks = userBooks;
+        if (currentTab === 'published') {
+            filteredBooks = userBooks.filter(b => b.published);
+        } else if (currentTab === 'draft') {
+            filteredBooks = userBooks.filter(b => !b.published);
+        }
+
+        if (filteredBooks.length === 0) {
+            const emptyMsg = currentTab === 'published'
+                ? (translations[currentLang].no_published_books || 'Henüz yayında olan bir kitabınız bulunmuyor.')
+                : (translations[currentLang].no_unpublished_books || 'Henüz yayında olmayan bir taslağınız bulunmuyor.');
+            booksGrid.innerHTML = `<div class="loading-spinner">${emptyMsg}</div>`;
+            return;
+        }
+
+        filteredBooks.forEach(book => {
             const card = document.createElement('div');
             card.className = 'book-card';
             const coverImg = book.cover || 'kapak.png';
@@ -130,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="book-cover-area">
                     <div class="book-spine-effect"></div>
                     <img src="${coverImg}" alt="${book.title}">
-                    ${book.published ? `<div class="published-badge">${translations[currentLang].published_badge}</div>` : ''}
+                    ${book.published ? `<div class="published-badge">${translations[currentLang].published_badge || 'YAYINDA'}</div>` : ''}
                 </div>
                 <div class="book-info-minimal">
                     <h3>${book.title}</h3>
@@ -138,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="book-actions">
                     <button class="btn-publish" onclick="event.stopPropagation(); window.openPublishModal('${book.id}')">
-                        ${book.published ? translations[currentLang].unpublish_btn : translations[currentLang].publish_btn}
+                        ${book.published ? (translations[currentLang].unpublish_btn || 'Yayından Kaldır 🛑') : (translations[currentLang].publish_btn || 'Yayınla 🌍')}
                     </button>
                 </div>
             `;

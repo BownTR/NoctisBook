@@ -90,19 +90,67 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
+    // Helper for friendly Firebase Auth error messages
+    const getAuthErrorMessage = (err) => {
+        switch (err.code) {
+            case 'auth/invalid-credential':
+                return currentLang === 'tr' 
+                    ? 'E-posta veya şifre hatalı. Eğer henüz bir hesap oluşturmadıysanız, lütfen üstteki "Kayıt Ol" sekmesinden yeni hesap açın.'
+                    : 'Invalid email or password. If you do not have an account yet, please use the "Register" tab to create one.';
+            case 'auth/user-not-found':
+                return currentLang === 'tr'
+                    ? 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı. Lütfen "Kayıt Ol" sekmesinden yeni bir hesap oluşturun.'
+                    : 'No user found with this email. Please register first.';
+            case 'auth/wrong-password':
+                return currentLang === 'tr'
+                    ? 'Girdiğiniz şifre hatalı.'
+                    : 'Incorrect password.';
+            case 'auth/email-already-in-use':
+                return currentLang === 'tr'
+                    ? 'Bu e-posta adresi zaten kullanımda. Lütfen "Giriş Yap" sekmesinden giriş yapın.'
+                    : 'This email is already in use. Please log in.';
+            case 'auth/weak-password':
+                return currentLang === 'tr'
+                    ? 'Şifre çok zayıf. Şifreniz en az 6 karakter olmalıdır.'
+                    : 'Password is too weak. Must be at least 6 characters.';
+            case 'auth/invalid-email':
+                return currentLang === 'tr'
+                    ? 'Lütfen geçerli bir e-posta adresi girin.'
+                    : 'Please enter a valid email address.';
+            case 'auth/operation-not-allowed':
+                return currentLang === 'tr'
+                    ? 'Firebase Konsolu\'nda "E-posta / Şifre" ile oturum açma yöntemi henüz etkinleştirilmemiş. Firebase Console -> Authentication -> Sign-in method bölümünden E-posta/Şifre sağlayıcısını etkinleştirin.'
+                    : 'Email/Password provider is not enabled in Firebase Console. Please enable it under Authentication -> Sign-in method.';
+            case 'auth/too-many-requests':
+                return currentLang === 'tr'
+                    ? 'Çok fazla başarısız deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin.'
+                    : 'Too many attempts. Please try again later.';
+            case 'auth/network-request-failed':
+                return currentLang === 'tr'
+                    ? 'Ağ bağlantısı hatası oluştu. Lütfen internet bağlantınızı kontrol edin.'
+                    : 'Network error. Please check your internet connection.';
+            default:
+                return err.message;
+        }
+    };
+
     // --- Firebase Auth Operations ---
     const registerForm = document.getElementById('register-form');
     registerForm.onsubmit = async (e) => {
         e.preventDefault();
-        const name = registerForm.querySelector('input[type="text"]').value;
-        const email = registerForm.querySelectorAll('input[type="email"]')[0].value;
-        const password = registerForm.querySelector('input[type="password"]').value;
+        const nameInput = registerForm.querySelector('input[type="text"]');
+        const emailInput = registerForm.querySelectorAll('input[type="email"]')[0];
+        const passwordInput = registerForm.querySelector('input[type="password"]');
+
+        const name = (nameInput?.value || '').trim();
+        const email = (emailInput?.value || '').trim();
+        const password = passwordInput?.value || '';
 
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             await userCredential.user.updateProfile({ displayName: name });
             
-            // İlk kayıt sonrası kullanıcı bilgisini Firestore'a (gerekirse) kaydedebiliriz
+            // İlk kayıt sonrası kullanıcı bilgisini Firestore'a kaydet
             await db.collection('users').doc(userCredential.user.uid).set({
                 name: name,
                 email: email,
@@ -112,21 +160,26 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(translations[currentLang].register_success);
             window.location.href = 'dashboard.html';
         } catch (err) {
-            alert('Hata: ' + err.message);
+            console.error("Register Error:", err);
+            alert('Hata: ' + getAuthErrorMessage(err));
         }
     };
 
     const loginForm = document.getElementById('login-form');
     loginForm.onsubmit = async (e) => {
         e.preventDefault();
-        const email = loginForm.querySelector('input[type="email"]').value;
-        const password = loginForm.querySelector('input[type="password"]').value;
+        const emailInput = loginForm.querySelector('input[type="email"]');
+        const passwordInput = loginForm.querySelector('input[type="password"]');
+
+        const email = (emailInput?.value || '').trim();
+        const password = passwordInput?.value || '';
 
         try {
             await auth.signInWithEmailAndPassword(email, password);
             window.location.href = 'dashboard.html';
         } catch (err) {
-            alert('Hata: ' + err.message);
+            console.error("Login Error:", err);
+            alert('Hata: ' + getAuthErrorMessage(err));
         }
     };
 
@@ -224,6 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Reading Mode & View Count Logic ---
     window.incrementViewsAndRedirect = async (bookId) => {
         try {
+            sessionStorage.setItem('noctis_return_scroll', window.scrollY.toString());
+            sessionStorage.setItem('noctis_return_url', window.location.href);
             // Increment view count in Firestore
             await db.collection('user_books').doc(bookId).update({
                 views: firebase.firestore.FieldValue.increment(1)
@@ -335,6 +390,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             window.addEventListener('resize', () => updateSlider(currentIndex));
+
+            // Restore scroll position if returning from reading a book
+            const savedScroll = sessionStorage.getItem('noctis_return_scroll');
+            const savedUrl = sessionStorage.getItem('noctis_return_url');
+            if (savedScroll && savedUrl && window.location.href.split('#')[0] === savedUrl.split('#')[0]) {
+                sessionStorage.removeItem('noctis_return_scroll');
+                sessionStorage.removeItem('noctis_return_url');
+                setTimeout(() => {
+                    window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'smooth' });
+                }, 80);
+            }
 
         } catch (err) {
             console.error("Home Load Error:", err);

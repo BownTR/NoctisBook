@@ -183,6 +183,60 @@ body {
     background: #fff;
 }
 
+/* Library Tabs */
+.library-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+    padding-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.lib-tab-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.65);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+}
+
+.lib-tab-btn:hover {
+    background: rgba(212, 175, 55, 0.08);
+    color: #fff;
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.lib-tab-btn.active {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--dash-gold);
+    color: var(--dash-gold);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+}
+
+.tab-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.lib-tab-btn.active .tab-badge {
+    background: var(--dash-gold);
+    color: #000;
+}
+
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -482,9 +536,22 @@ body {
     .section-header h2 { font-size: 26px; }
     .add-new-btn { width: 100%; text-align: center; justify-content: center; }
 
+    .library-tabs {
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+
+    .lib-tab-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
     .books-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
+        grid-template-columns: 1fr;
+        max-width: 330px;
+        margin: 0 auto;
+        gap: 25px;
     }
 
     .book-card { border-radius: 12px; }

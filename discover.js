@@ -131,6 +131,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (g.doUpdate) g.doUpdate();
                 });
             });
+
+            // Restore scroll position if returning from reading a book
+            const savedScroll = sessionStorage.getItem('noctis_return_scroll');
+            const savedUrl = sessionStorage.getItem('noctis_return_url');
+            if (savedScroll && savedUrl && window.location.href.split('#')[0] === savedUrl.split('#')[0]) {
+                sessionStorage.removeItem('noctis_return_scroll');
+                sessionStorage.removeItem('noctis_return_url');
+                setTimeout(() => {
+                    window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'smooth' });
+                }, 80);
+            }
         } catch (err) {
             console.error("Discover Load Error:", err);
             grid.innerHTML = `
