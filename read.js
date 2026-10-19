@@ -58,6 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadBookData = async () => {
         try {
+            // Wait for fonts to be ready so measurements use the exact EB Garamond font
+            if (document.fonts) {
+                try {
+                    await document.fonts.ready;
+                } catch (e) {
+                    console.warn("Fonts ready warning:", e);
+                }
+            }
+
             const bookDoc = await db.collection('user_books').doc(bookId).get();
             if (!bookDoc.exists) {
                 alert('Kitap bulunamadı.');
@@ -150,9 +159,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Measure available text width and height
         const isMobile = window.innerWidth <= 1024;
-        const targetWidth = displayChapterContent.clientWidth || (isMobile ? (window.innerWidth - 64) : 640);
-        // Rich, authentic book page height without header: leaves plenty of space for ~23-26 lines of text per page
-        const targetHeight = isMobile ? Math.max(480, window.innerHeight - 250) : 600;
+        const isSmallMobile = window.innerWidth <= 480;
+
+        let targetWidth = displayChapterContent ? displayChapterContent.clientWidth : 0;
+        if (!targetWidth || targetWidth <= 0) {
+            const horizontalDeduction = isSmallMobile ? 40 : (isMobile ? 56 : 144);
+            targetWidth = Math.max(260, window.innerWidth - horizontalDeduction);
+            if (!isMobile) targetWidth = Math.min(targetWidth, 656);
+        }
+
+        // Rich, authentic book page height: guarantees ~22-26 lines of text on both PC and real mobile
+        const targetHeight = isMobile
+            ? Math.max(580, Math.min(680, window.innerHeight - 130))
+            : 620;
+
+        const mobileFontSize = isSmallMobile ? '14.5px' : '15px';
+        const mobileLineHeight = isSmallMobile ? '1.6' : '1.62';
 
         // Synchronize ghost container styling accurately and prevent any min-height inheritance
         readerGhost.className = 'chapter-text-content';
@@ -160,10 +182,15 @@ document.addEventListener('DOMContentLoaded', () => {
         readerGhost.style.setProperty('height', 'auto', 'important');
         readerGhost.style.setProperty('max-height', 'none', 'important');
         readerGhost.style.setProperty('width', targetWidth + 'px', 'important');
-        readerGhost.style.setProperty('font-family', "'EB Garamond', serif", 'important');
-        readerGhost.style.setProperty('font-size', isMobile ? '15.5px' : '16.5px', 'important');
-        readerGhost.style.setProperty('line-height', isMobile ? '1.68' : '1.7', 'important');
+        readerGhost.style.setProperty('font-family', "'EB Garamond', Georgia, serif", 'important');
+        readerGhost.style.setProperty('font-size', isMobile ? mobileFontSize : '16.5px', 'important');
+        readerGhost.style.setProperty('line-height', isMobile ? mobileLineHeight : '1.7', 'important');
         readerGhost.style.setProperty('text-align', 'justify', 'important');
+        readerGhost.style.setProperty('text-justify', 'inter-word', 'important');
+        readerGhost.style.setProperty('hyphens', 'auto', 'important');
+        readerGhost.style.setProperty('-webkit-hyphens', 'auto', 'important');
+        readerGhost.style.setProperty('-webkit-text-size-adjust', '100%', 'important');
+        readerGhost.style.setProperty('text-size-adjust', '100%', 'important');
         readerGhost.style.setProperty('word-wrap', 'break-word', 'important');
         readerGhost.style.setProperty('overflow-wrap', 'break-word', 'important');
         readerGhost.style.setProperty('padding', '0', 'important');
@@ -502,9 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Resize Handler with Debounce
+    // Resize & Orientation Handlers with Debounce
     let resizeTimer = null;
-    window.addEventListener('resize', () => {
+    const handleViewportChange = () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             if (currentBook && currentBook.chapters && currentBook.chapters[currentChapterIdx]) {
@@ -513,8 +540,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPageIdx = Math.min(chapterPages.length - 1, Math.floor(currentRatio * chapterPages.length));
                 renderCurrentPage();
             }
-        }, 200);
-    });
+        }, 150);
+    };
+
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('orientationchange', handleViewportChange);
 
     loadBookData();
 

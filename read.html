@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Okuma Modu | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -13,6 +13,12 @@
             --paper-bg: #fdfaf3;
             --paper-text: #2c241e;
             --gold: #d4af37;
+        }
+
+        html, body {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
         body {
@@ -228,22 +234,26 @@
         }
 
         .chapter-text-content {
-            font-family: 'EB Garamond', serif;
+            font-family: 'EB Garamond', Georgia, serif;
             font-size: 16.5px;
             line-height: 1.7;
             text-align: justify;
+            text-justify: inter-word;
             color: rgba(38, 30, 22, 0.95);
             flex: 1;
             min-height: 0;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
+            -webkit-hyphens: auto;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
         .chapter-text-content p {
-            margin-bottom: 14px;
-            text-indent: 28px;
+            margin-bottom: 12px;
+            text-indent: 26px;
         }
 
         .paper-footer {
@@ -450,38 +460,38 @@
             }
 
             .read-content-area { 
-                padding: 15px 12px 25px;
+                padding: 12px 10px calc(25px + env(safe-area-inset-bottom, 0px));
                 background: var(--read-bg);
                 min-height: 100vh;
             }
 
             .reader-wrapper {
                 width: 100%;
-                max-width: 520px;
-                gap: 12px;
+                max-width: 540px;
+                gap: 10px;
             }
 
             .paper-view { 
                 width: 100%;
-                min-height: calc(100vh - 130px);
+                min-height: auto;
                 max-height: none;
-                padding: 26px 22px 18px; 
+                padding: 24px 18px 16px; 
                 box-shadow: 0 15px 40px rgba(0,0,0,0.5);
                 border: 1.5px solid rgba(212, 175, 55, 0.45);
                 cursor: pointer;
             }
 
             .paper-view::after {
-                top: 7px;
-                left: 7px;
-                right: 7px;
-                bottom: 7px;
+                top: 6px;
+                left: 6px;
+                right: 6px;
+                bottom: 6px;
                 border-radius: 7px;
             }
 
             .reader-top-bar {
                 padding: 6px 10px;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
 
             .reader-top-back-btn {
@@ -490,16 +500,32 @@
             }
 
             .chapter-text-content {
-                font-size: 15.5px;
-                line-height: 1.68;
+                font-size: 15px;
+                line-height: 1.62;
                 min-height: 0;
                 flex: 1;
-                margin-bottom: 12px;
+                margin-bottom: 10px;
+                text-align: justify;
+                text-justify: inter-word;
+                hyphens: auto;
+                -webkit-hyphens: auto;
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+            }
+
+            .chapter-text-content p {
+                margin-bottom: 10px;
+                text-indent: 18px;
+            }
+
+            .paper-footer {
+                padding-top: 10px;
             }
 
             .reader-page-nav {
                 gap: 5px;
-                margin-top: 10px;
+                margin-top: 8px;
+                margin-bottom: 12px;
                 flex-wrap: nowrap;
                 z-index: 100;
             }
@@ -540,6 +566,26 @@
 
             .read-sidebar.open + .read-sidebar-overlay {
                 display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .read-content-area {
+                padding: 10px 6px calc(20px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .paper-view {
+                padding: 20px 14px 14px;
+            }
+
+            .chapter-text-content {
+                font-size: 14.5px;
+                line-height: 1.6;
+            }
+
+            .chapter-text-content p {
+                margin-bottom: 9px;
+                text-indent: 16px;
             }
         }
     </style>
