@@ -81,12 +81,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.getElementById('sidebar-toggle-btn') || document.getElementById('menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const editorLoader = document.getElementById('editor-loader');
 
     // --- State ---
-    let chapters = [{ id: Date.now(), title: 'Giriş', content: 'Buraya hikayenizi yazmaya başlayın...' }];
+    let chapters = [{ id: Date.now(), title: 'Giriş', content: '' }];
     let activeChapterId = chapters[0].id;
     let currentSpreadIdx = 0;
     let allPages = [];
+    let hasPreloaded = false;
+
+    // --- Instant Preload from sessionStorage (0ms startup) ---
+    try {
+        const cachedRaw = sessionStorage.getItem('noctis_editing_book');
+        if (cachedRaw) {
+            const cachedBook = JSON.parse(cachedRaw);
+            if (cachedBook && cachedBook.id === bookId && Array.isArray(cachedBook.chapters) && cachedBook.chapters.length > 0) {
+                chapters = cachedBook.chapters;
+                if (targetChapterId) {
+                    const found = chapters.find(c => c.id == targetChapterId);
+                    activeChapterId = found ? found.id : chapters[0].id;
+                } else {
+                    activeChapterId = chapters[0].id;
+                }
+                hasPreloaded = true;
+                updateDimensions();
+                repaginate();
+                if (editorLoader) {
+                    editorLoader.style.display = 'none';
+                }
+            }
+        }
+    } catch (e) {
+        console.warn("Cached book preload error:", e);
+    }
 
     // --- Load Data ---
     auth.onAuthStateChanged(async (user) => {
@@ -112,10 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.chapters && data.chapters.length > 0) {
                     chapters = data.chapters;
-                    // Jump to chapter if specified, else last or first
+                    // Jump to chapter if specified, else keep current or first
                     if (targetChapterId) {
-                        activeChapterId = parseInt(targetChapterId);
-                    } else {
+                        const found = chapters.find(c => c.id == targetChapterId);
+                        activeChapterId = found ? found.id : chapters[0].id;
+                    } else if (!hasPreloaded) {
                         activeChapterId = chapters[0].id;
                     }
                 } else {
@@ -132,6 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
             repaginate();
         } catch (err) {
             console.error('Veri yükleme hatası:', err);
+        } finally {
+            if (editorLoader) {
+                editorLoader.classList.add('hidden');
+                setTimeout(() => editorLoader.style.display = 'none', 400);
+            }
         }
     });
 
@@ -141,17 +174,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateDimensions = () => {
         const isMobile = window.innerWidth <= 800;
-        WRITING_HEIGHT = leftText.clientHeight;
-        WRITING_WIDTH = leftText.clientWidth;
-        if (WRITING_WIDTH < 50) WRITING_WIDTH = isMobile ? Math.max(260, window.innerWidth - 60) : 400;
-        if (WRITING_HEIGHT < 50) WRITING_HEIGHT = isMobile ? Math.max(300, window.innerHeight - 240) : 580;
+        if (isMobile) {
+            WRITING_HEIGHT = Math.max(450, Math.min(540, window.innerHeight - 200));
+            WRITING_WIDTH = leftText.clientWidth || Math.max(260, window.innerWidth - 64);
+        } else {
+            WRITING_HEIGHT = leftText.clientHeight || 580;
+            WRITING_WIDTH = leftText.clientWidth || 400;
+        }
         syncGhost();
     };
 
     const syncGhost = () => {
+        const isMobile = window.innerWidth <= 800;
         ghostPage.style.width = WRITING_WIDTH + 'px';
-        ghostPage.style.fontSize = '14px';
-        ghostPage.style.lineHeight = '1.6';
+        ghostPage.style.fontSize = isMobile ? '15px' : '14px';
+        ghostPage.style.lineHeight = isMobile ? '1.62' : '1.6';
         ghostPage.style.fontFamily = "'Poppins', sans-serif";
         ghostPage.style.textAlign = 'left';
         ghostPage.style.whiteSpace = 'pre-wrap';
@@ -337,21 +374,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const onInput = (e) => {
         const el = e.target;
-        
-        // Immediate scroll lock
-        el.scrollTop = 0;
-
         const isMobile = window.innerWidth <= 800;
+        
+        // Only lock scroll on desktop where two pages are strictly fixed
+        if (!isMobile) {
+            el.scrollTop = 0;
+        }
+
         let idx = isMobile ? currentSpreadIdx : (currentSpreadIdx * 2 + (el.id === 'left-text' ? 0 : 1));
         const chapter = getActiveChapter();
 
-        // Small margin for error (+1 instead of +3) to be more responsive
-        if (el.scrollHeight > WRITING_HEIGHT + 1) {
+        // Small margin for error (+2) to be responsive
+        if (el.scrollHeight > WRITING_HEIGHT + 2) {
             allPages[idx] = el.innerHTML;
             chapter.content = normalizeHTML(allPages.join(''));
             repaginate();
             if (isMobile) { 
-                if (allPages.length > idx+1) { 
+                if (allPages.length > idx + 1) { 
                     currentSpreadIdx++; 
                     render(); 
                     setCursor(leftText); 
@@ -371,6 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         debounceSave();
         updateStats();
+
+        // On mobile: auto scroll cursor into view if near bottom so it's not hidden behind keyboard
+        if (isMobile) {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                if (rect && rect.bottom > window.innerHeight - 70) {
+                    window.scrollBy({ top: rect.bottom - (window.innerHeight - 100), behavior: 'smooth' });
+                }
+            }
+        }
     };
 
     const isSelectionAtEnd = (el) => {

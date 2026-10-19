@@ -225,6 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="meta">${wordCount} ${translations[currentLang].word_count}</span>
                 `;
                 item.onclick = () => {
+                    try {
+                        sessionStorage.setItem('noctis_editing_book', JSON.stringify(book));
+                    } catch (e) {
+                        console.warn(e);
+                    }
                     window.location.href = `editor.html?bookId=${book.id}&chapterId=${ch.id}`;
                 };
                 overlayChaptersList.appendChild(item);
@@ -236,6 +241,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         startWritingBtn.onclick = () => {
+            try {
+                sessionStorage.setItem('noctis_editing_book', JSON.stringify(book));
+            } catch (e) {
+                console.warn(e);
+            }
             window.location.href = `editor.html?bookId=${book.id}`;
         };
 

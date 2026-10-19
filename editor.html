@@ -3,13 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Yazı Atölyesi | Noctis Kitap Dünyası</title>
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="style.css">
     <script src="translations.js"></script>
 </head>
 
 <body data-page-title="btn_start_writing">
+    <!-- Editor Initial Loader -->
+    <div id="editor-loader" class="editor-loader">
+        <div class="loader-spinner"></div>
+        <p style="margin-top: 18px; color: var(--accent-color); font-family: 'Poppins', sans-serif; font-size: 14px;" data-i18n="book_from_shelf">Kitap Raftan İniyor...</p>
+    </div>
+
     <div class="grain-overlay"></div>
     <div class="save-notification" id="save-notification">Kaydedildi...</div>
 
