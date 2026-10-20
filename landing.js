@@ -275,18 +275,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Reading Mode & View Count Logic ---
-    window.incrementViewsAndRedirect = async (bookId) => {
+    window.incrementViewsAndRedirect = (bookId, bookData = null) => {
         try {
             sessionStorage.setItem('noctis_return_scroll', window.scrollY.toString());
             sessionStorage.setItem('noctis_return_url', window.location.href);
-            // Increment view count in Firestore
-            await db.collection('user_books').doc(bookId).update({
+
+            // Cache book data for instant 0ms reader opening
+            if (bookData) {
+                try {
+                    sessionStorage.setItem('noctis_reading_book', JSON.stringify(bookData));
+                } catch (cacheErr) {
+                    try {
+                        const bookLite = { ...bookData };
+                        if (bookLite.cover && bookLite.cover.length > 50000) delete bookLite.cover;
+                        sessionStorage.setItem('noctis_reading_book', JSON.stringify(bookLite));
+                    } catch (e2) {
+                        console.warn("Could not cache reading book:", e2);
+                    }
+                }
+            }
+
+            // Increment view count asynchronously in background (non-blocking)
+            db.collection('user_books').doc(bookId).update({
                 views: firebase.firestore.FieldValue.increment(1)
+            }).catch(err => {
+                console.warn("View increment skipped:", err);
             });
         } catch (err) {
-            console.error("View increment error:", err);
+            console.warn("Redirect error:", err);
         }
-        // Redirect regardless of increment success
+        // Redirect immediately without waiting for network
         window.location.href = `read.html?bookId=${bookId}`;
     };
 
@@ -323,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const coverImg = book.cover || 'kapak.png';
                 const card = document.createElement('div');
                 card.className = `discover-card ${index === 0 ? 'active' : ''}`;
-                card.onclick = () => window.incrementViewsAndRedirect(book.id);
+                card.onclick = () => window.incrementViewsAndRedirect(book.id, book);
 
                 card.innerHTML = `
                     <div class="discover-card-inner">

@@ -56,12 +56,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const loadBookData = async () => {
+    let hasPreloaded = false;
+
+    const hideLoader = () => {
+        if (!loader) return;
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 250);
+    };
+
+    // --- Instant Preload from sessionStorage (0ms startup) ---
+    const initPreload = () => {
         try {
-            // Wait for fonts to be ready so measurements use the exact EB Garamond font
+            const cachedRaw = sessionStorage.getItem('noctis_reading_book');
+            if (cachedRaw) {
+                const cachedBook = JSON.parse(cachedRaw);
+                if (cachedBook && cachedBook.id === bookId) {
+                    currentBook = cachedBook;
+                    renderBookMeta();
+                    renderChapterList();
+
+                    if (currentBook.chapters && currentBook.chapters.length > 0) {
+                        const savedProgress = getSavedReadingProgress();
+                        if (savedProgress && currentBook.chapters[savedProgress.chapterIdx]) {
+                            loadChapter(savedProgress.chapterIdx, savedProgress.pageIdx || 0);
+                        } else {
+                            loadChapter(0, 0);
+                        }
+                    } else {
+                        if (displayChapterTitle) displayChapterTitle.textContent = currentLang === 'tr' ? "Henüz Bölüm Yok" : "No Chapters Yet";
+                        displayChapterContent.innerHTML = `<p>${currentLang === 'tr' ? "Bu yazar henüz bir bölüm yayınlamadı." : "This author hasn't published any chapters yet."}</p>`;
+                        if (paperPageNum) paperPageNum.textContent = '— 0 —';
+                        updatePaginationControls();
+                    }
+                    hasPreloaded = true;
+                    hideLoader();
+                }
+            }
+        } catch (e) {
+            console.warn("Cached book preload warning:", e);
+        }
+    };
+
+    const loadBookData = async () => {
+        // Run preload immediately so user sees book instantly
+        initPreload();
+
+        // Safety fallback: ensure loader never hangs more than 5s under any circumstance
+        setTimeout(() => {
+            if (loader && loader.style.display !== 'none') {
+                hideLoader();
+            }
+        }, 5000);
+
+        try {
+            // Font loading: Wait at most 350ms so fonts don't stall the reader on slow networks
             if (document.fonts) {
                 try {
-                    await document.fonts.ready;
+                    await Promise.race([
+                        document.fonts.ready,
+                        new Promise(resolve => setTimeout(resolve, 350))
+                    ]);
                 } catch (e) {
                     console.warn("Fonts ready warning:", e);
                 }
@@ -69,39 +125,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const bookDoc = await db.collection('user_books').doc(bookId).get();
             if (!bookDoc.exists) {
-                alert('Kitap bulunamadı.');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            currentBook = { id: bookDoc.id, ...bookDoc.data() };
-            renderBookMeta();
-            renderChapterList();
-            
-            // Auto load saved progress or first chapter
-            if (currentBook.chapters && currentBook.chapters.length > 0) {
-                const savedProgress = getSavedReadingProgress();
-                if (savedProgress && currentBook.chapters[savedProgress.chapterIdx]) {
-                    loadChapter(savedProgress.chapterIdx, savedProgress.pageIdx || 0);
-                } else {
-                    loadChapter(0, 0);
+                if (!hasPreloaded) {
+                    hideLoader();
+                    alert('Kitap bulunamadı.');
+                    window.location.href = 'discover.html';
+                    return;
                 }
             } else {
-                if (displayChapterTitle) displayChapterTitle.textContent = currentLang === 'tr' ? "Henüz Bölüm Yok" : "No Chapters Yet";
-                displayChapterContent.innerHTML = `<p>${currentLang === 'tr' ? "Bu yazar henüz bir bölüm yayınlamadı." : "This author hasn't published any chapters yet."}</p>`;
-                if (paperPageNum) paperPageNum.textContent = '— 0 —';
-                updatePaginationControls();
+                const freshData = { id: bookDoc.id, ...bookDoc.data() };
+                currentBook = freshData;
+                renderBookMeta();
+
+                // If not preloaded yet, do the initial render and hide loader
+                if (!hasPreloaded) {
+                    renderChapterList();
+                    if (currentBook.chapters && currentBook.chapters.length > 0) {
+                        const savedProgress = getSavedReadingProgress();
+                        if (savedProgress && currentBook.chapters[savedProgress.chapterIdx]) {
+                            loadChapter(savedProgress.chapterIdx, savedProgress.pageIdx || 0);
+                        } else {
+                            loadChapter(0, 0);
+                        }
+                    } else {
+                        if (displayChapterTitle) displayChapterTitle.textContent = currentLang === 'tr' ? "Henüz Bölüm Yok" : "No Chapters Yet";
+                        displayChapterContent.innerHTML = `<p>${currentLang === 'tr' ? "Bu yazar henüz bir bölüm yayınlamadı." : "This author hasn't published any chapters yet."}</p>`;
+                        if (paperPageNum) paperPageNum.textContent = '— 0 —';
+                        updatePaginationControls();
+                    }
+                    hideLoader();
+                }
             }
-
-            // Hide loader
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }, 800);
-
         } catch (err) {
             console.error("Load Error:", err);
-            alert('Hata: ' + err.message);
+            hideLoader(); // CRITICAL: Always hide the loader so user is NEVER stuck!
+            if (!hasPreloaded) {
+                alert('Hata: ' + (err.message || 'Kitap yüklenirken bir sorun oluştu.'));
+                window.location.href = 'discover.html';
+            }
         }
     };
 

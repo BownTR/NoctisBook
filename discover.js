@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const coverImg = book.cover || 'kapak.png';
                     const card = document.createElement('div');
                     card.className = `discover-card`;
-                    card.onclick = () => window.incrementViewsAndRedirect(book.id);
+                    card.onclick = () => window.incrementViewsAndRedirect(book.id, book);
 
                     card.innerHTML = `
                         <div class="discover-card-inner">
