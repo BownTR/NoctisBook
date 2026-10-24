@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'database.sqlite');
 
 // Initialize Database
@@ -63,14 +63,29 @@ const server = http.createServer((req, res) => {
         if (reqPath === '/') reqPath = '/index.html';
 
         const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
-        const filePath = path.join(__dirname, safePath);
+        let filePath = path.join(__dirname, safePath);
+
+        const serveFile = (pathToSend) => {
+            const ext = path.extname(pathToSend).toLowerCase();
+            const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+            res.writeHead(200, { 'Content-Type': contentType });
+            fs.createReadStream(pathToSend).pipe(res);
+        };
 
         fs.stat(filePath, (err, stats) => {
             if (!err && stats.isFile()) {
-                const ext = path.extname(filePath).toLowerCase();
-                const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-                res.writeHead(200, { 'Content-Type': contentType });
-                fs.createReadStream(filePath).pipe(res);
+                serveFile(filePath);
+            } else if (!path.extname(filePath)) {
+                // Uzantısız istekler için .html dene (örn: /discover -> /discover.html)
+                const htmlPath = filePath + '.html';
+                fs.stat(htmlPath, (htmlErr, htmlStats) => {
+                    if (!htmlErr && htmlStats.isFile()) {
+                        serveFile(htmlPath);
+                    } else {
+                        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+                        res.end('404 Sayfa Bulunamadı');
+                    }
+                });
             } else {
                 res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
                 res.end('404 Sayfa Bulunamadı');
@@ -158,10 +173,10 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`-----------------------------------------`);
     console.log(`Noctis Kitap Dünyası Başlatıldı!`);
-    console.log(`URL: http://localhost:${PORT}`);
+    console.log(`URL: http://0.0.0.0:${PORT}`);
     console.log(`Veritabanı (SQLite): ${DB_PATH}`);
     console.log(`-----------------------------------------`);
 });
